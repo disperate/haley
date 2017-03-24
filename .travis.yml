@@ -1,11 +1,11 @@
 language: python
 
-python:
-  - "3.4"
+env:
+  - TOXENV=py34
+  - TOXENV=pypy
 
-install:
-  - pip install cookiecutter
+# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+# install: pip install -U tox
 
-script:
-  - cookiecutter . --no-input
-  - python setup.py test
+# command to run tests, e.g. python setup.py test
+script: python setup.py test
