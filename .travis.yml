@@ -7,4 +7,4 @@ env:
 # install: pip install -U tox
 
 # command to run tests, e.g. python setup.py test
-script: python setup.py test
+#script: python setup.py test
