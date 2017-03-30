@@ -1,12 +1,12 @@
+import time
+
 from transitions import Machine
-import random
-import sys
+
 from modul import display
 from activity import init
 from activity import ready
-import time
-
-
+from activity import waitForGreen
+from activity import blindDrive
 
 
 class Haley(object):
@@ -16,10 +16,10 @@ class Haley(object):
         {'name': 'setup', 'on_enter': 'initSetup'},
         {'name': 'ready', 'on_enter': 'initReady'},
         {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen'},
-        'blindDrive',
-        'guidedDrive',
-        'turning',
-        'buttonDrive',
+        {'name': 'blindDrive','on_enter': 'initBlindDrive'},
+        {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive'},
+        {'name': 'turning', 'on_enter': 'initTurning'},
+        {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
         'end']
 
     def __init__(self, name):
@@ -60,13 +60,19 @@ class Haley(object):
 
     def initSetup(self):
 
-        ##init all
+        ##init all modules
         self.modulDisplay = display.display()
 
         i = init.initActivity(self)
 
     def initReady(self):
         i = ready.readyActivity(self)
+
+    def initWaitForGreen(self):
+        i = waitForGreen.waitForGreenActivity(self)
+
+    def initBlindDrive(self):
+        i = blindDrive.blindDriveActivity(self)
 
 
 
@@ -75,7 +81,7 @@ haley = Haley("Haley")
 haley.startSetup()
 
 while True:
-    time.sleep(5)
-    q = input("Please enter 'q' to stop:")
-    if q.strip() == 'q':
+    time.sleep(2)
+    print('Current state: ' + haley.state)
+    if haley.state == 'end':
         break
