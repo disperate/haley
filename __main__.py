@@ -1,11 +1,15 @@
-import modul.diplay
+
 import activity.init
 from transitions import Machine
 import random
 import sys
+from modul import display
+
+
 
 
 class Haley(object):
+
     states = [
         'init',
         {'name': 'setup', 'on_enter': 'initSetup', 'on_exit': 'exitSetup'},
@@ -52,15 +56,16 @@ class Haley(object):
             trigger='buttonPressed', source='buttonDrive', dest='end')
 
 
+
     def initSetup(self):
         print("init Setup")
+        self.modulDisplay = display.display()
 
 
 haley = Haley("Haley")
 haley.startSetup()
 
 while True:
-
     q = input("Please enter 'q' to stop:")
     if q.strip() == 'q':
         break
