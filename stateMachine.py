@@ -2,6 +2,7 @@ from transitions import Machine
 from threading import Thread
 
 from modul import display
+from modul import camera
 from activity import init
 from activity import ready
 from activity import waitForGreen
@@ -14,7 +15,7 @@ class Haley(object):
         'init',
         {'name': 'setup', 'on_enter': 'initSetup'},
         {'name': 'ready', 'on_enter': 'initReady'},
-        {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen'},
+        {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen', 'on_exit' : 'exitWaitForGreen'},
         {'name': 'blindDrive','on_enter': 'initBlindDrive', 'on_exit' : 'exitBlindDrive'},
         {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive'},
         {'name': 'turning', 'on_enter': 'initTurning'},
@@ -59,6 +60,10 @@ class Haley(object):
 
         ##init all modules
         self.modulDisplay = display.display()
+
+        self.cameraModul = camera.camera()
+        self.cameraModul.start()
+
         i = init.initActivity(self)
 
     def initReady(self):
@@ -66,8 +71,12 @@ class Haley(object):
         t.start()
 
     def initWaitForGreen(self):
-        t = Thread(target=waitForGreen.waitForGreenActivity, args=(self,))
+        t = Thread(target=waitForGreen.waitForGreenActivity, args=(self, self.cameraModul))
         t.start()
+
+    def exitWaitForGreen(self):
+        self.cameraModul.stopGreenlightDedection()
+
 
     def initBlindDrive(self):
         self.blindDriver = blindDrive.blindDriveActivity(self)
