@@ -1,10 +1,12 @@
 from transitions import Machine
+from threading import Thread
 
 from modul import display
 from activity import init
 from activity import ready
 from activity import waitForGreen
 from activity import blindDrive
+from activity import dedectWalls
 
 
 class Haley(object):
@@ -14,7 +16,7 @@ class Haley(object):
         {'name': 'setup', 'on_enter': 'initSetup'},
         {'name': 'ready', 'on_enter': 'initReady'},
         {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen'},
-        {'name': 'blindDrive','on_enter': 'initBlindDrive'},
+        {'name': 'blindDrive','on_enter': 'initBlindDrive', 'on_exit' : 'exitBlindDrive'},
         {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive'},
         {'name': 'turning', 'on_enter': 'initTurning'},
         {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
@@ -59,14 +61,28 @@ class Haley(object):
 
         ##init all modules
         self.modulDisplay = display.display()
-
         i = init.initActivity(self)
 
     def initReady(self):
-        i = ready.readyActivity(self)
+        t = Thread(target=ready.readyActivity, args = (self,))
+        t.start()
 
     def initWaitForGreen(self):
-        i = waitForGreen.waitForGreenActivity(self)
+        t = Thread(target=waitForGreen.waitForGreenActivity, args=(self,))
+        t.start()
 
     def initBlindDrive(self):
-        i = blindDrive.blindDriveActivity(self)
+        self.blindDriver = blindDrive.blindDriveActivity(self)
+
+        blindDriverThread = Thread(target=self.blindDriver.run, args=())
+        blindDriverThread.start()
+
+        t2 = Thread(target=dedectWalls.dedectWallsActivity, args=(self,))
+        t2.start()
+
+    def exitBlindDrive(self):
+        self.blindDriver.terminate()
+
+
+
+
