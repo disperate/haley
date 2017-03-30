@@ -8,7 +8,6 @@ from activity import waitForGreen
 from activity import blindDrive
 from activity import dedectWalls
 
-
 class Haley(object):
 
     states = [
@@ -56,7 +55,6 @@ class Haley(object):
             trigger='buttonPressed', source='buttonDrive', dest='end')
 
 
-
     def initSetup(self):
 
         ##init all modules
@@ -82,7 +80,3 @@ class Haley(object):
 
     def exitBlindDrive(self):
         self.blindDriver.terminate()
-
-
-
-
