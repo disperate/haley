@@ -1,9 +1,10 @@
-
-import activity.init
 from transitions import Machine
 import random
 import sys
 from modul import display
+from activity import init
+from activity import ready
+import time
 
 
 
@@ -12,7 +13,7 @@ class Haley(object):
 
     states = [
         'init',
-        {'name': 'setup', 'on_enter': 'initSetup', 'on_exit': 'exitSetup'},
+        {'name': 'setup', 'on_enter': 'initSetup'},
         {'name': 'ready', 'on_enter': 'initReady'},
         {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen'},
         'blindDrive',
@@ -58,14 +59,23 @@ class Haley(object):
 
 
     def initSetup(self):
-        print("init Setup")
+
+        ##init all
         self.modulDisplay = display.display()
+
+        i = init.initActivity(self)
+
+    def initReady(self):
+        i = ready.readyActivity(self)
+
+
 
 
 haley = Haley("Haley")
 haley.startSetup()
 
 while True:
+    time.sleep(5)
     q = input("Please enter 'q' to stop:")
     if q.strip() == 'q':
         break
