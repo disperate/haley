@@ -3,6 +3,7 @@ from threading import Thread
 
 from modul import display
 from modul import camera
+from modul import buttonpresser
 from activity import init
 from activity import ready
 from activity import waitForGreen
@@ -63,6 +64,10 @@ class Haley(object):
 
         self.cameraModul = camera.camera()
         self.cameraModul.start()
+
+        self.buttonpresser = buttonpresser.buttonpresser()
+        self.buttonpresser.start()
+
 
         i = init.initActivity(self)
 
