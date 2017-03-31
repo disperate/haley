@@ -17,10 +17,10 @@ class buttonpresser(Thread):
 
         self._pi = pigpio.pi()
         self._running = True
+        self._romanNumber = None
 
     def terminate(self):
         self._running = False
-
 
     def run(self):
         while (self._running):
