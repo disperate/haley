@@ -1,3 +1,4 @@
 transitions
 picamera
 pigpio
+sense-hat
