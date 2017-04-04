@@ -2,27 +2,26 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
-# Datum:        2017.03.31
+# Datum:        2017.04.04
 # Version:      0.1
 #------------------------------------------------------------------------------
-# Class:        Iic
+# Class:        DistanceSensorAdapter
 # Description:  This class provides:
-#               - guarantees "synchronised" access to the I2C-bus.
-#               - act as a container for gyro- and distance-data
-#               - reads continuous via thread the current gyro- and
-#                 distance-values and stores it
+#               - Initialization and access to the Distance-Sensors via I2C
+#               - Distance-Sensors: VL53L0X Time-of-Flight (ToF) ranging sensor
 #------------------------------------------------------------------------------
 
 # Imports
-from modul.iic import senseHatAdapter
-from modul.iic import distanceSensors
+import pigpio
 
 # Class
-class Iic:
+class DistanceSensorAdapter():
     # Konstruktor
     # --------------------------------------------------------------------------
     def __init__(self):
-        self.currYaw = 0.0
-        self.currPitch = 0.0
-        self.currRoll = 0.0
+        self.pi = pigpio.pi()
+
+    # Funktions
+    # --------------------------------------------------------------------------
+    def fuuBar(self):
         pass
