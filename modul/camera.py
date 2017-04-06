@@ -3,7 +3,6 @@ import time
 
 class camera(Thread):
 
-
     def __init__(self):
         super().__init__()
         self._running = True
@@ -22,9 +21,19 @@ class camera(Thread):
         self._dedectRomanNumber = True
 
     def getRomanNumber(self):
+        """
+        Description: Returns the found Roman Number or None if its not found yet.
+        Start looking for the roman number by calling startRomanNumberDedection()
+        Returns:     int (1-5)
+        """
         return self._romanNumber
 
     def isGreen(self):
+        """
+        Description: False until green light is dedected
+        Start looking for green light by calling startGreenlightDedection
+        Returns:     bool
+        """
         return self._isGreen
 
     def terminate(self):
