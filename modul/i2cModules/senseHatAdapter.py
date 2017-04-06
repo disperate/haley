@@ -12,7 +12,7 @@
 # Imports
 from sense_hat import SenseHat
 
-# Class
+
 class SenseHatAdapter():
     # Konstruktor
     # --------------------------------------------------------------------------
@@ -38,10 +38,13 @@ class SenseHatAdapter():
         Returns:     Boolean
         """
         try:
+            print(self.__class__.__name__ + ": Init...")
             self.sense = SenseHat()
             self.sense.set_imu_config(True, True, True)
+            print(self.__class__.__name__ + ": ...done!")
             return True
         except:
+            print(self.__class__.__name__ + ": ...failed!")
             return False
 
 

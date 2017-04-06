@@ -24,7 +24,8 @@
 #------------------------------------------------------------------------------
 
 # Imports
-import threading
+from threading import Thread
+from threading import RLock
 from time import sleep
 from modul.i2cModules import senseHatAdapter
 from modul.i2cModules import distanceSensorAdapter
@@ -32,17 +33,19 @@ from modul.i2cModules import distanceSensorAdapter
 # Variables
 SENSOR_DATA_BUFFER_SIZE = 5
 DISPLAY_MAX_STATES = 8
-THREAD_SLEEP_MS = 100
+THREAD_SLEEP_MS = 1000
 
 
 # Class
-class I2cHandler(threading.Thread):
+class I2cHandler(Thread):
     # Konstruktor
     # --------------------------------------------------------------------------
     def __init__(self):
+        print(self.__class__.__name__ + ": Init...")
+
         # Threading stuff
-        threading.Thread.__init__(self)
-        self.lock = threading.RLock()
+        Thread.__init__(self)
+        self.lock = RLock()
 
         # Protected field by lock
         self.currYaw = [0.0] * SENSOR_DATA_BUFFER_SIZE
@@ -65,6 +68,8 @@ class I2cHandler(threading.Thread):
         # Used modules
         self.senseHat = senseHatAdapter.SenseHatAdapter()
         self.distanceSensors = distanceSensorAdapter.DistanceSensorAdapter()
+
+        print(self.__class__.__name__ + ": ...done!")
 
 
     # Funktions
@@ -146,15 +151,19 @@ class I2cHandler(threading.Thread):
         Description: Sets the roman number
         Args:        1. Number as integer or string
         """
+        print(self.__class__.__name__ + ": setRomanNumber...enter")
         self.lock.acquire()
         try:
+            print(self.__class__.__name__ + ": setRomanNumber...try")
             self.dispRomanNumber = int(newNumber)
         except:
-            pass
+            print(self.__class__.__name__ + ": setRomanNumber...except")
         finally:
+            print(self.__class__.__name__ + ": setRomanNumber...finally")
             self.threadRefreshDisplay = True
             self.lock.release()
 
+        print(self.__class__.__name__ + ": setRomanNumber...leave")
         return
 
 
@@ -248,7 +257,7 @@ class I2cHandler(threading.Thread):
         return currDistance
 
 
-    def stop(self):
+    def terminate(self):
         """
         Description: Stops running thread. Threads stops after
                      a complete while loop.
@@ -267,6 +276,7 @@ class I2cHandler(threading.Thread):
         """
         Running thread, which will do all the work for this module.
         """
+        print(self.__class__.__name__ + ": Start thread...")
         self.threadIsRunning = True
 
         while (self.threadIsRunning):
@@ -308,5 +318,6 @@ class I2cHandler(threading.Thread):
                 self.lock.release()
 
             sleep((1 / 1000) * THREAD_SLEEP_MS)
+            print(self.__class__.__name__ + ": Thread... loop")
 
         return

@@ -14,12 +14,12 @@
 # Imports
 import pigpio
 
-# Class
+
 class DistanceSensorAdapter():
     # Konstruktor
     # --------------------------------------------------------------------------
     def __init__(self):
-        self.pi = pigpio.pi()
+        self.pi = None
 
         self.initDistanceSensors()
 
@@ -32,8 +32,12 @@ class DistanceSensorAdapter():
         Returns:     Boolean
         """
         try:
+            print(self.__class__.__name__ + ": Init...")
+            self.pi = pigpio.pi()
+            print(self.__class__.__name__ + ": ...done!")
             return True
         except:
+            print(self.__class__.__name__ + ": ...failed!")
             return False
 
 
