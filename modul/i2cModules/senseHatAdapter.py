@@ -25,17 +25,24 @@ class SenseHatAdapter():
         self.ForeColorIdle = [255, 127, 39]     # Orange
         self.ForeColorRunning = [0, 255, 0]     # Green
         self.ForeColorStop = [255, 0, 0]        # Red
+        self.sense = None
 
-        self.sense = SenseHat()
         self.initSenseHat()
-        pass
 
 
     # Funktions
     # --------------------------------------------------------------------------
     def initSenseHat(self):
-        self.sense.set_imu_config(True, True, True)
-        return
+        """
+        Description: Initializes the sense-hat
+        Returns:     Boolean
+        """
+        try:
+            self.sense = SenseHat()
+            self.sense.set_imu_config(True, True, True)
+            return True
+        except:
+            return False
 
 
     def refreshOrientation(self):
@@ -105,6 +112,7 @@ class SenseHatAdapter():
         self.sense.clear(0,0,0)
 
         return
+
 
     def refreshDisplay(self):
         """

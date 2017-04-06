@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
-# Datum:        2017.04.04
+# Datum:        2017.04.06
 # Version:      0.1
 #------------------------------------------------------------------------------
 # Class:        I2cHandler
@@ -20,6 +20,7 @@
 #
 # ToDo:         - PyCharm highlights rows with "ToDo" which is nice
 # ToDo:         - Testing the whole sheit
+# ToDo:         - Maybe it's better for a separate Buffer-Class
 #------------------------------------------------------------------------------
 
 # Imports
@@ -30,8 +31,8 @@ from modul.i2cModules import distanceSensorAdapter
 
 # Variables
 SENSOR_DATA_BUFFER_SIZE = 5
-DISPLAY_MAX_STATES      = 8
-THREAD_SLEEP_MS         = 100
+DISPLAY_MAX_STATES = 8
+THREAD_SLEEP_MS = 100
 
 
 # Class
@@ -43,18 +44,23 @@ class I2cHandler(threading.Thread):
         threading.Thread.__init__(self)
         self.lock = threading.RLock()
 
-        # Protected field by locks
+        # Protected field by lock
         self.currYaw = [0.0] * SENSOR_DATA_BUFFER_SIZE
         self.currPitch = [0.0] * SENSOR_DATA_BUFFER_SIZE
         self.currRoll = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceFront = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceFrontLeft = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceFrontRight = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceBackLeft = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceBackRight = [0.0] * SENSOR_DATA_BUFFER_SIZE
+
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
+
+        self.threadIsRunning = False
         self.threadMeasureOrientation = True
         self.threadMeasureDistance = True
         self.threadRefreshDisplay = False
-
-        # Unprotected field
-        self.threadIsRunning = True
 
         # Used modules
         self.senseHat = senseHatAdapter.SenseHatAdapter()
@@ -152,10 +158,117 @@ class I2cHandler(threading.Thread):
         return
 
 
+    def getDistanceFront(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     front sensor.
+        Returns:     Float
+        """
+        currDistance = 0.0
+        self.lock.acquire()
+        try:
+            currDistance = self.currDistanceFront[0]
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def getDistanceFrontLeft(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     front left sensor.
+        Returns:     Float
+        """
+        currDistance = 0.0
+        self.lock.acquire()
+        try:
+            currDistance = self.currDistanceFrontLeft[0]
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def getDistanceFrontRight(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     front right sensor.
+        Returns:     Float
+        """
+        currDistance = 0.0
+        self.lock.acquire()
+        try:
+            currDistance = self.currDistanceFrontRight[0]
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def getDistanceBackLeft(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     back left sensor.
+        Returns:     Float
+        """
+        currDistance = 0.0
+        self.lock.acquire()
+        try:
+            currDistance = self.currDistanceBackLeft[0]
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def getDistanceBackRight(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     back right sensor.
+        Returns:     Float
+        """
+        currDistance = 0.0
+        self.lock.acquire()
+        try:
+            currDistance = self.currDistanceBackRight[0]
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def stop(self):
+        """
+        Description: Stops running thread. Threads stops after
+                     a complete while loop.
+        """
+        self.lock.acquire()
+        try:
+            self.threadIsRunning = False
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return
+
     def run(self):
         """
         Running thread, which will do all the work for this module.
         """
+        self.threadIsRunning = True
+
         while (self.threadIsRunning):
             self.lock.acquire()
             try:
@@ -169,7 +282,16 @@ class I2cHandler(threading.Thread):
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally
-                    pass
+                    self.currDistanceBackLeft.append(self.distanceSensors.getDistanceBackLeft())
+                    self.currDistanceBackRight.append(self.distanceSensors.getDistanceBackRight())
+                    self.currDistanceFront.append(self.distanceSensors.getDistanceFront())
+                    self.currDistanceFrontLeft.append(self.distanceSensors.getDistanceFrontLeft())
+                    self.currDistanceFrontRight.append(self.distanceSensors.getDistanceFrontRight())
+                    self.currDistanceBackLeft.pop(0)
+                    self.currDistanceBackRight.pop(0)
+                    self.currDistanceFront.pop(0)
+                    self.currDistanceFrontLeft.pop(0)
+                    self.currDistanceFrontRight.pop(0)
 
                 if (self.threadMeasureOrientation):
                     if(self.senseHat.refreshOrientation()):
