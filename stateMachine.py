@@ -4,6 +4,7 @@ from threading import Thread
 from modul import display
 from modul import camera
 from modul import buttonpresser
+from modul import motorController
 from activity import init
 from activity import ready
 from activity import waitForGreen
@@ -69,6 +70,8 @@ class Haley(object):
 
         self.buttonpresser = buttonpresser.buttonpresser()
         self.buttonpresser.start()
+
+        self.motorcontroller = motorController.MotorController()
 
 
         i = init.initActivity(self)

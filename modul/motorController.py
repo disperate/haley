@@ -20,6 +20,8 @@ import pigpio
 
 BCM_PWM0 = 12
 BCM_PWM1 = 13
+MotorEnable = 22
+
 MIN_FREQUENCY = 0
 MAX_FREQUENCY = 600
 
@@ -30,6 +32,7 @@ class MotorController():
         self.pi = None
         self.pwmChannel0 = BCM_PWM0
         self.pwmChannel1 = BCM_PWM1
+        self.enableChannel = MotorEnable
 
         self.initMotorController()
 
@@ -44,6 +47,11 @@ class MotorController():
         try:
             print(self.__class__.__name__ + ": Init...")
             self.pi = pigpio.pi()
+
+            ##Stopping motors
+            self.pi.write(22, 1)
+
+
             print(self.__class__.__name__ + ": ...done!")
             return True
         except:
