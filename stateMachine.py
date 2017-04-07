@@ -23,6 +23,8 @@ class Haley(object):
         {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
         'end']
 
+    direction = None
+
     def __init__(self, name):
 
         self.name = name

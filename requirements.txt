@@ -2,3 +2,4 @@ transitions
 picamera
 pigpio
 sense-hat
+Enum
