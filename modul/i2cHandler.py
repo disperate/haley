@@ -18,9 +18,11 @@
 # Sense-Hat:    - Read:     Gyro-States (continuous reading)
 #                 Write:    Display
 #
-# ToDo:         - PyCharm highlights rows with "ToDo" which is nice
-# ToDo:         - Testing the whole sheit
-# ToDo:         - Maybe it's better for a separate Buffer-Class
+# Tests passed: - Write numbers to display (2017.04.07)
+#               - Write states to display (2017.04.07)
+#               - Read gyro-states (2017.04.07)
+#
+# ToDo:         - Adding sensor
 #------------------------------------------------------------------------------
 
 # Imports
@@ -33,10 +35,9 @@ from modul.i2cModules import distanceSensorAdapter
 # Variables
 SENSOR_DATA_BUFFER_SIZE = 5
 DISPLAY_MAX_STATES = 8
-THREAD_SLEEP_MS = 1000
+THREAD_SLEEP_MS = 10
 
 
-# Class
 class I2cHandler(Thread):
     # Konstruktor
     # --------------------------------------------------------------------------
@@ -264,6 +265,7 @@ class I2cHandler(Thread):
         """
         self.lock.acquire()
         try:
+            self.senseHat.clearDisplay()
             self.threadIsRunning = False
         except:
             pass
@@ -271,6 +273,7 @@ class I2cHandler(Thread):
             self.lock.release()
 
         return
+
 
     def run(self):
         """
@@ -318,6 +321,6 @@ class I2cHandler(Thread):
                 self.lock.release()
 
             sleep((1 / 1000) * THREAD_SLEEP_MS)
-            print(self.__class__.__name__ + ": Thread... loop")
+            # print(self.__class__.__name__ + ": Thread... loop")
 
         return
