@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
-# Datum:        2017.04.06
-# Version:      0.1
-#------------------------------------------------------------------------------
+# Version:      0.4
+#-------------------------------------------------------------------------------
 # Class:        I2cHandler
 # Description:  This class provides:
 #               - Guarantees "synchronised" access to the I2C-bus.
@@ -17,6 +16,28 @@
 #                 Write:    On initialisation
 # Sense-Hat:    - Read:     Gyro-States (continuous reading)
 #                 Write:    Display
+#
+#-------------------------------------------------------------------------------
+#
+# I2C-Map:      - "sudo i2cdetect -y 1"
+#
+#                    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+#               00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+#               10: -- -- -- -- -- -- -- -- -- -- -- -- 1c -- -- --
+#               20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#               30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+#               40: -- -- -- -- -- -- UU -- -- -- -- -- -- -- -- --
+#               50: -- -- -- -- -- -- -- -- -- -- -- -- 5c -- -- 5f
+#               60: -- -- -- -- -- -- -- -- -- -- 6a -- -- -- -- --
+#               70: -- -- -- -- -- -- -- --
+#
+#               - 0x1C --> Sense-Hat:   LSM9DS1     (Accelerometer / Gyro)
+#               - 0x46 --> Sense-Hat:   ATTINY88    (RGB-Display / Joystick)
+#               - 0x5C --> Sense-Hat:   LPS25H      (Pressure / Temperature)
+#               - 0x5F --> Sense-Hat:   HTS221      (Humidity / Temperature)
+#               - 0x6A --> Sense-Hat:   LSM9DS1     (Magnetometer)
+#
+#-------------------------------------------------------------------------------
 #
 # Tests passed: - Write numbers to display (2017.04.07)
 #               - Write states to display (2017.04.07)
