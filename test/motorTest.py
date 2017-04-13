@@ -9,14 +9,14 @@
 #------------------------------------------------------------------------------
 
 # Imports
-from modul.motorController import MotorController
+from modul.motor import motor
 from time import sleep
 
 controller = None
 
 # Main
 try:
-    controller = MotorController()
+    controller = motor()
     controller.start()
 
 

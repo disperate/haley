@@ -4,7 +4,7 @@ from threading import Thread
 from modul import display
 from modul import camera
 from modul import buttonpresser
-from modul import motorController
+from modul import motor
 from activity import init
 from activity import ready
 from activity import waitForGreen
@@ -63,7 +63,7 @@ class Haley(object):
     def initSetup(self):
 
         ##init all modules
-        self.modulDisplay = display.display()
+        self.displayModul = display.display()
 
         self.cameraModul = camera.camera()
         self.cameraModul.start()
@@ -71,7 +71,7 @@ class Haley(object):
         self.buttonpresser = buttonpresser.buttonpresser()
         self.buttonpresser.start()
 
-        self.motorcontroller = motorController.MotorController()
+        self.motorModul = motor.motor()
 
 
         i = init.initActivity(self)
@@ -89,13 +89,13 @@ class Haley(object):
 
 
     def initBlindDrive(self):
-        self.blindDriver = blindDrive.blindDriveActivity(self)
+        self.blindDriveActivity = blindDrive.blindDriveActivity(self)
 
-        blindDriverThread = Thread(target=self.blindDriver.run, args=())
+        blindDriverThread = Thread(target=self.blindDriveActivity, args=(self, self.motorModul))
         blindDriverThread.start()
 
-        t2 = Thread(target=dedectWalls.dedectWallsActivity, args=(self,))
-        t2.start()
+        dedectWallsThread = Thread(target=dedectWalls.dedectWallsActivity, args=(self,))
+        dedectWallsThread.start()
 
     def exitBlindDrive(self):
-        self.blindDriver.terminate()
+        self.blindDriveActivity.terminate()

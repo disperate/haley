@@ -50,7 +50,7 @@ MAX_FREQUENCY = 700
 THREAD_SLEEP_MS = 10
 
 
-class MotorController(Thread):
+class motor(Thread):
     # Konstruktor
     # --------------------------------------------------------------------------
     def __init__(self):
@@ -71,12 +71,12 @@ class MotorController(Thread):
 
         # self.enableFork = BCM_PIN_NR_FORK_ENABLE ???
         self.pi = None
-        self.initMotorController()
+        self.initMotor()
 
 
     # Funktions
     # --------------------------------------------------------------------------
-    def initMotorController(self):
+    def initMotor(self):
         """
         Description: Initializes motor controller
         Returns:     Boolean
