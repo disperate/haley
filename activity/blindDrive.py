@@ -1,13 +1,19 @@
 import time
+import config
+
 
 class blindDriveActivity(object):
-    def __init__(self, fsm):
+    def __init__(self, fsm, motor):
         self._running = True
+        self._motorController = motor
 
     def terminate(self):
+        self._motorController.setVelocityLeft(0.0)
+        self._motorController.setVelocityRight(0.0)
         self._running = False
 
     def run(self):
         while(self._running):
-            print("driving blind...")
-            time.sleep(2)
+            self._motorController.setVelocityLeft(config.blindDriveVelocity)
+            self._motorController.setVelocityRight(config.blindDriveVelocity)
+            time.sleep(0.1)
