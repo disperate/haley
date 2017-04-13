@@ -46,7 +46,7 @@ BCM_PIN_NR_FORK_ENABLE = 22
 
 PWM_DEFAULT_DUTYCYCLE = 250000 # 25%
 MIN_FREQUENCY = 0
-MAX_FREQUENCY = 600
+MAX_FREQUENCY = 700
 THREAD_SLEEP_MS = 10
 
 
@@ -88,7 +88,7 @@ class MotorController(Thread):
             self.pi = pigpio.pi()
 
             ##Stopping motors
-            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 1)
+            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 0)
 
             if(__debug__):
                 print(self.__class__.__name__ + ": ...done!")
@@ -218,6 +218,7 @@ class MotorController(Thread):
         try:
             self._stopDriver()
             self.threadRequestStop = True
+            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 1)
         except:
             pass
         finally:
