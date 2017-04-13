@@ -87,8 +87,7 @@ class motor(Thread):
 
             self.pi = pigpio.pi()
 
-            ##Stopping motors
-            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 0)
+            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 1)
 
             if(__debug__):
                 print(self.__class__.__name__ + ": ...done!")

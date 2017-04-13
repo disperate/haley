@@ -10,6 +10,9 @@ from activity import ready
 from activity import waitForGreen
 from activity import blindDrive
 from activity import dedectWalls
+from activity import guidedDrive
+from activity import loseWalls
+from activity import turn
 
 class Haley(object):
 
@@ -25,6 +28,8 @@ class Haley(object):
         'end']
 
     direction = None
+
+    hasTurned = False
 
     def __init__(self, name):
 
@@ -98,3 +103,17 @@ class Haley(object):
 
     def exitBlindDrive(self):
         self.blindDriveActivity.terminate()
+
+    def initGuidedDrive(self):
+        self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul)
+        self.guidedDriveActivity.start()
+
+        lostWallsThread = Thread(target=loseWalls.loseWallsActivity, args=(self,))
+        lostWallsThread.start()
+
+    def exitGuidedDrive(self):
+        self.guidedDriveActivity.terminate()
+
+    def initTurning(self):
+        turnThread = Thread(target=turn.turnActivity, args=(self,))
+        turnThread.start()

@@ -4,4 +4,5 @@ BUTTON = 4
 
 greenlightTimeoutInSeconds = 3
 
-blindDriveVelocity = 70
+blindDriveVelocity = 50
+guidedDriveVelocity = 70
