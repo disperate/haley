@@ -72,7 +72,7 @@ class Haley(object):
         self.buttonpresser.start()
 
         self.motorModul = motor.motor()
-
+        self.motorModul.start()
 
         i = init.initActivity(self)
 
@@ -89,10 +89,9 @@ class Haley(object):
 
 
     def initBlindDrive(self):
-        self.blindDriveActivity = blindDrive.blindDriveActivity(self)
 
-        blindDriverThread = Thread(target=self.blindDriveActivity, args=(self, self.motorModul))
-        blindDriverThread.start()
+        self.blindDriveActivity = blindDrive.blindDriveActivity(self, self.motorModul)
+        self.blindDriveActivity.start()
 
         dedectWallsThread = Thread(target=dedectWalls.dedectWallsActivity, args=(self,))
         dedectWallsThread.start()

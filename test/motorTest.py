@@ -9,14 +9,14 @@
 #------------------------------------------------------------------------------
 
 # Imports
-from modul.motor import motor
+from modul import motor
 from time import sleep
 
 controller = None
 
 # Main
 try:
-    controller = motor()
+    controller = motor.motor()
     controller.start()
 
 
@@ -32,10 +32,8 @@ try:
 
 except KeyboardInterrupt:
     controller.terminate()
-    print("\033c")
     print("Goodbye!")
 except:
     controller.terminate()
-    print("\033c")
     print("Aaaaaargh!")
     raise

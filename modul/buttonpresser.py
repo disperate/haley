@@ -24,6 +24,6 @@ class buttonpresser(Thread):
 
     def run(self):
         while (self._running):
-            self._pi.write(18, self._pi.read(self._SWITCH1))
-            self._pi.write(19, self._pi.read(self._SWITCH2))
+            #self._pi.write(18, self._pi.read(self._SWITCH1))
+            #self._pi.write(19, self._pi.read(self._SWITCH2))
             time.sleep(0.1)

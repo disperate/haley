@@ -1,9 +1,12 @@
+from threading import Thread
 import time
 import config
 
 
-class blindDriveActivity(object):
+class blindDriveActivity(Thread):
+
     def __init__(self, fsm, motor):
+        super().__init__()
         self._running = True
         self._motorController = motor
 
