@@ -9,32 +9,29 @@
 #------------------------------------------------------------------------------
 
 # Imports
-from modul.i2cHandler import I2cHandler
+from modul import i2cHandler
 from time import sleep
 
 handler = None
 
 # Main
 try:
-    handler = I2cHandler()
+    handler = i2cHandler.I2cHandler()
     handler.start()
 
     while(True):
+        sleep(0.1)
         print("\033c")
-        print("Pitch: " + str(handler.getCurrPitch()))
-        print("Yaw: " + str(handler.getCurrYaw()))
-        print("Roll: " + str(handler.getCurrRoll()))
-        sleep(0.05)
+        print("Left Back: {:4d}, Left Front: {:4d}, Front: {:4d}".format(handler.getDistanceLeftBack(), handler.getDistanceLeftFront(), handler.getDistanceFront()))
+        print("Pitch: {0:3.3f}, Yaw: {0:3.3f}, Roll: {0:3.3f}".format(handler.getCurrPitch(), handler.getCurrYaw(), handler.getCurrRoll()))
 
     handler.terminate()
 
 
 except KeyboardInterrupt:
     handler.terminate()
-    print("\033c")
     print("Goodbye!")
 except:
     handler.terminate()
-    print("\033c")
     print("Aaaaaargh!")
     raise

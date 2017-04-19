@@ -60,10 +60,11 @@ from time import sleep
 from modul.i2cModules import senseHatAdapter
 from modul.i2cModules import distanceSensorAdapter
 
-# Variables
+# Constants
+INVALID_VALUE           = -1
 SENSOR_DATA_BUFFER_SIZE = 5
-DISPLAY_MAX_STATES = 8
-THREAD_SLEEP_MS = 10
+DISPLAY_MAX_STATES      = 8
+THREAD_SLEEP_MS         = 100
 
 
 class I2cHandler(Thread):
@@ -80,11 +81,11 @@ class I2cHandler(Thread):
         self.currYaw = [0.0] * SENSOR_DATA_BUFFER_SIZE
         self.currPitch = [0.0] * SENSOR_DATA_BUFFER_SIZE
         self.currRoll = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceFront = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceFrontLeft = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceFrontRight = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceBackLeft = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceBackRight = [0.0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceLeftBack = [0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceLeftFront = [0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceFront = [0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceRightFront = [0] * SENSOR_DATA_BUFFER_SIZE
+        self.currDistanceRightBack = [0] * SENSOR_DATA_BUFFER_SIZE
 
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
@@ -200,9 +201,9 @@ class I2cHandler(Thread):
         """
         Description: Gets the distance value from the last measurement of the
                      front sensor.
-        Returns:     Float
+        Returns:     Int
         """
-        currDistance = 0.0
+        currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
             currDistance = self.currDistanceFront[0]
@@ -214,16 +215,16 @@ class I2cHandler(Thread):
         return currDistance
 
 
-    def getDistanceFrontLeft(self):
+    def getDistanceLeftFront(self):
         """
         Description: Gets the distance value from the last measurement of the
                      front left sensor.
-        Returns:     Float
+        Returns:     Int
         """
-        currDistance = 0.0
+        currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceFrontLeft[0]
+            currDistance = self.currDistanceLeftFront[0]
         except:
             pass
         finally:
@@ -232,16 +233,16 @@ class I2cHandler(Thread):
         return currDistance
 
 
-    def getDistanceFrontRight(self):
+    def getDistanceRightFront(self):
         """
         Description: Gets the distance value from the last measurement of the
                      front right sensor.
-        Returns:     Float
+        Returns:     Int
         """
-        currDistance = 0.0
+        currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceFrontRight[0]
+            currDistance = self.currDistanceRightFront[0]
         except:
             pass
         finally:
@@ -250,16 +251,16 @@ class I2cHandler(Thread):
         return currDistance
 
 
-    def getDistanceBackLeft(self):
+    def getDistanceLeftBack(self):
         """
         Description: Gets the distance value from the last measurement of the
                      back left sensor.
-        Returns:     Float
+        Returns:     Int
         """
-        currDistance = 0.0
+        currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceBackLeft[0]
+            currDistance = self.currDistanceLeftBack[0]
         except:
             pass
         finally:
@@ -268,16 +269,16 @@ class I2cHandler(Thread):
         return currDistance
 
 
-    def getDistanceBackRight(self):
+    def getDistanceRightBack(self):
         """
         Description: Gets the distance value from the last measurement of the
                      back right sensor.
-        Returns:     Float
+        Returns:     Int
         """
-        currDistance = 0.0
+        currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceBackRight[0]
+            currDistance = self.currDistanceRightBack[0]
         except:
             pass
         finally:
@@ -323,16 +324,18 @@ class I2cHandler(Thread):
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally
-                    self.currDistanceBackLeft.append(self.distanceSensors.getDistanceBackLeft())
-                    self.currDistanceBackRight.append(self.distanceSensors.getDistanceBackRight())
+                    self.currDistanceLeftBack.append(self.distanceSensors.getDistanceLeftBack())
+                    self.currDistanceLeftFront.append(self.distanceSensors.getDistanceLeftFront())
                     self.currDistanceFront.append(self.distanceSensors.getDistanceFront())
-                    self.currDistanceFrontLeft.append(self.distanceSensors.getDistanceFrontLeft())
-                    self.currDistanceFrontRight.append(self.distanceSensors.getDistanceFrontRight())
-                    self.currDistanceBackLeft.pop(0)
-                    self.currDistanceBackRight.pop(0)
+                    self.currDistanceRightFront.append(self.distanceSensors.getDistanceRightFront())
+                    self.currDistanceRightBack.append(self.distanceSensors.getDistanceRightBack())
+
+                    self.currDistanceLeftBack.pop(0)
+                    self.currDistanceLeftFront.pop(0)
                     self.currDistanceFront.pop(0)
-                    self.currDistanceFrontLeft.pop(0)
-                    self.currDistanceFrontRight.pop(0)
+                    self.currDistanceRightFront.pop(0)
+                    self.currDistanceRightBack.pop(0)
+
 
                 if (self.threadMeasureOrientation):
                     if(self.senseHat.refreshOrientation()):
@@ -343,8 +346,8 @@ class I2cHandler(Thread):
                         self.currYaw.pop(0)
                         self.currPitch.pop(0)
                         self.currRoll.pop(0)
-            except:
-                pass
+            except Exception as err:
+                self._printDebug("...Exception --> " + str(err))
             finally:
                 self.lock.release()
 
@@ -352,3 +355,8 @@ class I2cHandler(Thread):
             # print(self.__class__.__name__ + ": Thread... loop")
 
         return
+
+
+    def _printDebug(self, message):
+        if (__debug__):
+            print("  {}: {}".format(self.__class__.__name__, message))
