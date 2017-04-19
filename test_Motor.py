@@ -19,12 +19,10 @@ try:
     controller = motor.motor()
     controller.start()
 
-
-
     controller.setVelocityLeft(-100.0)
     controller.setVelocityRight(-100.0)
 
-    sleep(30)
+    sleep(5)
 
 
     controller.terminate()

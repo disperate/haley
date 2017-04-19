@@ -6,16 +6,14 @@
 # Class:        MotorController
 # Description:  This class provides:
 #               - For movement
-#                   - Access to the left and right stepmotor
+#                   - Access to the left and right stepping motor
 #                   - Range from -100% to 100%
-#               - For the fork on the front
-#                   - Movement left or right
 #
 # Used Pins:
-#               - BCM 12 (Pin 32) - Stepmotor Left PWM (PWM 0)
-#               - BCM 13 (Pin 33) - Stepmotor Right PWM (PWM 1)
-#               - BCM 16 (Pin 36) - Stepmotor Left Direction
-#               - BCM 17 (Pin 11) - Stepmotor Right Direction
+#               - BCM 12 (Pin 32) - Stepping motor Left PWM (PWM 0)
+#               - BCM 13 (Pin 33) - Stepping motor Right PWM (PWM 1)
+#               - BCM 16 (Pin 36) - Stepping motor Left Direction
+#               - BCM 17 (Pin 11) - Stepping motor Right Direction
 #
 #------------------------------------------------------------------------------
 #
@@ -35,7 +33,7 @@ from threading import RLock
 from haleyenum.drivingDirection import DrivingDirection
 from time import sleep
 
-
+# Constants
 BCM_PIN_NR_PWM_LEFT = 12
 BCM_PIN_NR_PWM_RIGHT = 13
 BCM_PIN_NR_DIRECTION_LEFT = 16
@@ -67,7 +65,6 @@ class motor(Thread):
         self.threadIsRunning = False
         self.threadRequestStop = False
         self.threadRefreshDrive = False
-        self.threadRefreshForkMotor = False
 
         self.pi = None
         self.initMotor()
@@ -81,18 +78,17 @@ class motor(Thread):
         Returns:     Boolean
         """
         try:
-            if(__debug__):
-                print(self.__class__.__name__ + ": Init...")
+            self._printDebug("Init...")
 
-            self.pi = pigpio.pi()
+            if(self.pi is None):
+                self.pi = pigpio.pi()
+
             self.pi.write(BCM_PIN_NR_ENABLE, 1)
 
-            if(__debug__):
-                print(self.__class__.__name__ + ": ...done!")
+            self._printDebug("...done!")
             return True
-        except:
-            if(__debug__):
-                print(self.__class__.__name__ + ": ...failed!")
+        except Exception as err:
+            self._printDebug("...failed --> " + str(err))
             return False
 
 
@@ -114,8 +110,7 @@ class motor(Thread):
                 try:
                     self._setVelocityLeft(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
                 except Exception as err:
-                    if (__debug__):
-                        print(self.__class__.__name__ + ": -- setVelocityLeft(): Exception --> ", err)
+                    self._printDebug("setVelocityLeft(): Exception --> " + str(err))
                 finally:
                     self.lock.release()
 
@@ -139,8 +134,7 @@ class motor(Thread):
                 try:
                     self._setVelocityRight(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
                 except Exception as err:
-                    if (__debug__):
-                        print(self.__class__.__name__ + ": -- setVelocityRight(): Exception --> ", err)
+                    self._printDebug("setVelocityRight(): Exception --> " + str(err))
                 finally:
                     self.lock.release()
 
@@ -149,7 +143,7 @@ class motor(Thread):
 
     def stopDriver(self):
         """
-        Description: Stops the stepmotors.
+        Description: Stops the stepping motors.
         """
         self.lock.acquire()
         try:
@@ -249,27 +243,22 @@ class motor(Thread):
 
                 # Refresh driver
                 if(self.threadRefreshDrive):
-                    print("Velocity Left: " + str(self.motorLeftCurrVelocity))
-                    print("Velocity Right: " + str(self.motorRightCurrVelocity))
-
                     self.pi.hardware_PWM(BCM_PIN_NR_PWM_LEFT, self.motorLeftCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
                     self.pi.hardware_PWM(BCM_PIN_NR_PWM_RIGHT, self.motorRightCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
                     self.pi.write(BCM_PIN_NR_DIRECTION_LEFT, self.motorLeftDirection)
                     self.pi.write(BCM_PIN_NR_DIRECTION_RIGHT, self.motorRightDirection)
 
                     self.threadRefreshDrive = False
-
-                # Refresh forkmotor
-                if(self.threadRefreshForkMotor):
-                    # Do something
-
-                    self.threadRefreshForkMotor = False
             except Exception as err:
-                if (__debug__):
-                    print(self.__class__.__name__ + ": -- Thread: Exception --> ", err)
+                self._printDebug("Thread: Exception --> " + str(err))
             finally:
                 self.lock.release()
 
             sleep((1 / 1000) * THREAD_SLEEP_MS)
 
         return
+
+
+    def _printDebug(self, message):
+        if (__debug__):
+            print("{}: {}".format(self.__class__.__name__, message))
