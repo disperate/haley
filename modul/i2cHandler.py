@@ -37,6 +37,13 @@
 #               - 0x5F --> Sense-Hat:   HTS221      (Humidity / Temperature)
 #               - 0x6A --> Sense-Hat:   LSM9DS1     (Magnetometer)
 #
+#               Reserved for sensors:
+#               - 0x30 --> VL53L0X-TOF-Sensor Left-Back
+#               - 0x31 --> VL53L0X-TOF-Sensor Left-Front
+#               - 0x32 --> VL53L0X-TOF-Sensor Front
+#               - 0x33 --> VL53L0X-TOF-Sensor Right-Front
+#               - 0x34 --> VL53L0X-TOF-Sensor Right-Back
+#
 #-------------------------------------------------------------------------------
 #
 # Tests passed: - Write numbers to display (2017.04.07)

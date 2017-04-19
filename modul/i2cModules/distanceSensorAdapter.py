@@ -2,17 +2,21 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
-# Datum:        2017.04.06
-# Version:      0.1
+# Datum:        2017.04.19
 #------------------------------------------------------------------------------
 # Class:        DistanceSensorAdapter
 # Description:  This class provides:
 #               - Initialization and access to the Distance-Sensors via I2C
 #               - Distance-Sensors: VL53L0X Time-of-Flight (ToF) ranging sensor
 #------------------------------------------------------------------------------
+#
+#               - UNDER CONSTRUCTION!
+#
+#------------------------------------------------------------------------------
 
 # Imports
 import pigpio
+from modul.i2cModules.VL53L0X import VL53L0X
 
 
 class DistanceSensorAdapter():
@@ -20,6 +24,7 @@ class DistanceSensorAdapter():
     # --------------------------------------------------------------------------
     def __init__(self):
         self.pi = None
+        self.sensors = list()
 
         self.initDistanceSensors()
 

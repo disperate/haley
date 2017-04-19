@@ -24,9 +24,8 @@
 #               - stopDriver() (2017.04.13)
 #               - terminate() (2017.04.13)
 #
-#
+#------------------------------------------------------------------------------
 # ToDo:         - Testing!
-# ToDo:         - "terminate()" needs some more love
 #------------------------------------------------------------------------------
 
 # Imports
@@ -41,7 +40,7 @@ BCM_PIN_NR_PWM_LEFT = 12
 BCM_PIN_NR_PWM_RIGHT = 13
 BCM_PIN_NR_DIRECTION_LEFT = 16
 BCM_PIN_NR_DIRECTION_RIGHT = 17
-BCM_PIN_NR_FORK_ENABLE = 22
+BCM_PIN_NR_ENABLE = 22
 
 
 PWM_DEFAULT_DUTYCYCLE = 250000 # 25%
@@ -59,6 +58,7 @@ class motor(Thread):
         self.lock = RLock()
 
         # Protected field by lock
+        self.motorIsEnabled = False
         self.motorLeftDirection = DrivingDirection.FORWARD.value
         self.motorLeftCurrVelocity = 0
         self.motorRightDirection = DrivingDirection.FORWARD.value
@@ -69,7 +69,6 @@ class motor(Thread):
         self.threadRefreshDrive = False
         self.threadRefreshForkMotor = False
 
-        # self.enableFork = BCM_PIN_NR_FORK_ENABLE ???
         self.pi = None
         self.initMotor()
 
@@ -86,8 +85,7 @@ class motor(Thread):
                 print(self.__class__.__name__ + ": Init...")
 
             self.pi = pigpio.pi()
-
-            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 1)
+            self.pi.write(BCM_PIN_NR_ENABLE, 1)
 
             if(__debug__):
                 print(self.__class__.__name__ + ": ...done!")
@@ -117,7 +115,7 @@ class motor(Thread):
                     self._setVelocityLeft(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
                 except Exception as err:
                     if (__debug__):
-                        print(self.__class__.__name__ + ": -- setVelocityRight(): Exception --> ", err)
+                        print(self.__class__.__name__ + ": -- setVelocityLeft(): Exception --> ", err)
                 finally:
                     self.lock.release()
 
@@ -170,6 +168,8 @@ class motor(Thread):
         """
         self._setVelocityLeft(0)
         self._setVelocityRight(0)
+        self.pi.write(BCM_PIN_NR_ENABLE, 1)
+        self.motorIsEnabled = False
 
         return
 
@@ -185,6 +185,10 @@ class motor(Thread):
             self.motorLeftDirection = DrivingDirection.BACKWARD.value
         else:
             self.motorLeftDirection = DrivingDirection.FORWARD.value
+
+        if(self.motorIsEnabled is not True):
+            self.pi.write(BCM_PIN_NR_ENABLE, 0)
+            self.motorIsEnabled = True
 
         self.threadRefreshDrive = True
 
@@ -203,6 +207,10 @@ class motor(Thread):
         else:
             self.motorRightDirection = DrivingDirection.FORWARD.value
 
+        if(self.motorIsEnabled is not True):
+            self.pi.write(BCM_PIN_NR_ENABLE, 0)
+            self.motorIsEnabled = True
+
         self.threadRefreshDrive = True
 
         return
@@ -217,7 +225,6 @@ class motor(Thread):
         try:
             self._stopDriver()
             self.threadRequestStop = True
-            self.pi.write(BCM_PIN_NR_FORK_ENABLE, 1)
         except:
             pass
         finally:
