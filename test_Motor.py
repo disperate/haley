@@ -19,15 +19,20 @@ try:
     controller = motor.motor()
     controller.start()
 
+    controller.setVelocityLeft(100.0)
+    controller.setVelocityRight(100.0)
+    sleep(5)
+    controller.setVelocityLeft(50.0)
+    controller.setVelocityRight(-50.0)
+    sleep(10)
+    controller.setVelocityLeft(-50.0)
+    controller.setVelocityRight(50.0)
+    sleep(10)
     controller.setVelocityLeft(-100.0)
     controller.setVelocityRight(-100.0)
-
     sleep(5)
 
-
     controller.terminate()
-
-
 except KeyboardInterrupt:
     controller.terminate()
     print("Goodbye!")
