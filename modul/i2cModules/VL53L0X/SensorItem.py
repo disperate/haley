@@ -38,26 +38,35 @@ class SensorItem():
     # Funktions
     # --------------------------------------------------------------------------
     def initSensor(self):
-        self._printDebug("Enter initSensor()")
-        if(self._pigpio is None):
-            self._pigpio = pigpio.pi()
+        try:
+            self._printDebug("Enter initSensor()")
+            if (self._pigpio is None):
+                self._pigpio = pigpio.pi()
 
-        self._sensor = VL53L0X.VL53L0X(self._address)
-        self.resetSensor()
-        self._printDebug("Initialized")
+            self._sensor = VL53L0X.VL53L0X(self._address)
+            self.resetSensor()
+            self._printDebug("Initialized")
+            return True
+        except Exception as err:
+            self._printDebug("...Exception --> " + str(err))
+            return False
 
 
     def startRanging(self):
-        self._printDebug("Start Ranging...")
-        self._pigpio.write(self._shutDownPin, 1)
-        self._printDebug("Activate Sensor...")
-        self._sensor.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
-        self._printDebug("Sensor activated...")
-        self._timingBudget = self._sensor.get_timing()
-        self._printDebug("Timing-Budget is: {}ms".format(int(self._timingBudget / 1000)))
+        try:
+            self._printDebug("Start Ranging...")
+            self._pigpio.write(self._shutDownPin, 1)
+            self._printDebug("Activate Sensor...")
+            self._sensor.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+            self._printDebug("Sensor activated...")
+            self._timingBudget = self._sensor.get_timing()
+            self._printDebug("Timing-Budget is: {}ms".format(int(self._timingBudget / 1000)))
 
-        self._sensorIsRunning = True
-        sleep(0.1)
+            self._sensorIsRunning = True
+            return True
+        except Exception as err:
+            self._printDebug("...Exception --> " + str(err))
+            return False
 
 
     def stopRanging(self):

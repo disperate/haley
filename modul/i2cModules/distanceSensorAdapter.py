@@ -16,6 +16,7 @@
 
 # Imports
 from modul.i2cModules.VL53L0X import SensorItem
+from time import sleep
 
 
 # Sensor Constants
@@ -79,6 +80,7 @@ class DistanceSensorAdapter():
             for currSensor in self._sensors:
                 if currSensor is not None:
                     currSensor.initSensor()
+                    sleep(0.1)
                     currSensor.startRanging()
 
             self._printDebug("...done!")
