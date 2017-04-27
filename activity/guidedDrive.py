@@ -1,7 +1,7 @@
 from threading import Thread
 import time
 import config
-from common import PID
+from common import pid
 
 
 class guidedDriveActivity(Thread):
@@ -11,7 +11,7 @@ class guidedDriveActivity(Thread):
         self._running = True
         self._motorController = motor
         self._i2c = i2c
-        self._pid = PID.PID(0.001, 0, 0)
+        self._pid = pid.PID(0.001, 0, 0)
         self._pid.SetPoint=0.0
 
     def terminate(self):
@@ -21,8 +21,9 @@ class guidedDriveActivity(Thread):
 
     def run(self):
         while(self._running):
-            error = self._i2c.getDistanceLeftBack() - self._i2c.getDistanceRightBack()
+            error = self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()
             print(error)
             if self._pid.update(error):
                 self._motorController.setVelocityLeft(config.guidedDriveVelocity * (1 + self._pid.output))
                 self._motorController.setVelocityRight(config.guidedDriveVelocity)
+            time.sleep(0.01)

@@ -102,7 +102,7 @@ class Haley(object):
         self.blindDriveActivity = blindDrive.blindDriveActivity(self, self.motorModul)
         self.blindDriveActivity.start()
 
-        dedectWallsThread = Thread(target=dedectWalls.dedectWallsActivity, args=(self,))
+        dedectWallsThread = Thread(target=dedectWalls.dedectWallsActivity, args=(self, self.i2c))
         dedectWallsThread.start()
 
     def exitBlindDrive(self):
@@ -112,7 +112,7 @@ class Haley(object):
         self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul, self.i2c)
         self.guidedDriveActivity.start()
 
-        lostWallsThread = Thread(target=loseWalls.loseWallsActivity, args=(self,))
+        lostWallsThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
         lostWallsThread.start()
 
     def exitGuidedDrive(self):
