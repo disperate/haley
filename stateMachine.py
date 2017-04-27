@@ -5,6 +5,7 @@ from modul import display
 from modul import camera
 from modul import buttonpresser
 from modul import motor
+from modul import i2cHandler
 from activity import init
 from activity import ready
 from activity import waitForGreen
@@ -79,6 +80,9 @@ class Haley(object):
         self.motorModul = motor.motor()
         self.motorModul.start()
 
+        self.i2c = i2cHandler.I2cHandler()
+        self.i2c.start()
+
         i = init.initActivity(self)
 
     def initReady(self):
@@ -105,7 +109,7 @@ class Haley(object):
         self.blindDriveActivity.terminate()
 
     def initGuidedDrive(self):
-        self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul)
+        self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul, self.i2c)
         self.guidedDriveActivity.start()
 
         lostWallsThread = Thread(target=loseWalls.loseWallsActivity, args=(self,))
