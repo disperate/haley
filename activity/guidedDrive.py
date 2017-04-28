@@ -26,4 +26,4 @@ class guidedDriveActivity(Thread):
             if self._pid.update(error):
                 self._motorController.setVelocityLeft(config.guidedDriveVelocity * (1 + self._pid.output))
                 self._motorController.setVelocityRight(config.guidedDriveVelocity)
-            time.sleep(0.01)
+            time.sleep(0.001)

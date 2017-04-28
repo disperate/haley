@@ -13,4 +13,3 @@ class turnActivity(object):
         motor.setVelocityLeft(60)
         motor.setVelocityRight(-60)
         time.sleep(2)
-
