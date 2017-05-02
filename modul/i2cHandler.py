@@ -59,13 +59,24 @@ from threading import RLock
 from time import sleep
 from modul.i2cModules import senseHatAdapter
 from modul.i2cModules import distanceSensorAdapter
+from common import ringbuffer
 
 # Constants
-INVALID_VALUE           = -1
-SENSOR_DATA_BUFFER_SIZE = 5
-DISPLAY_MAX_STATES      = 8
-THREAD_SLEEP_MS         = 100
+INVALID_VALUE               = -1
+DISPLAY_MAX_STATES          = 8
+THREAD_SLEEP_MS             = 100
 
+BUFFER_SIZE                 = 5
+
+GYR_BUFFER_POS_YAW          = 0
+GYR_BUFFER_POS_PITCH        = 1
+GYR_BUFFER_POS_ROLL         = 2
+
+DIST_BUFFER_POS_LEFT_BACK   = 0
+DIST_BUFFER_POS_LEFT_FRONT  = 1
+DIST_BUFFER_POS_FRONT       = 2
+DIST_BUFFER_POS_RIGHT_FRONT = 3
+DIST_BUFFER_POS_RIGHT_BACK  = 4
 
 class I2cHandler(Thread):
     # Konstruktor
@@ -78,14 +89,17 @@ class I2cHandler(Thread):
         self.lock = RLock()
 
         # Protected field by lock
-        self.currYaw = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currPitch = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currRoll = [0.0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceLeftBack = [0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceLeftFront = [0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceFront = [0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceRightFront = [0] * SENSOR_DATA_BUFFER_SIZE
-        self.currDistanceRightBack = [0] * SENSOR_DATA_BUFFER_SIZE
+        self.bufferGyro = [None] * 3
+        self.bufferGyro[GYR_BUFFER_POS_YAW] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferGyro[GYR_BUFFER_POS_PITCH] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferGyro[GYR_BUFFER_POS_ROLL] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+
+        self.bufferDistance = [None] * 5
+        self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferDistance[DIST_BUFFER_POS_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
 
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
@@ -112,7 +126,7 @@ class I2cHandler(Thread):
         currYaw = 0.0
         self.lock.acquire()
         try:
-            currYaw = self.currYaw[0]
+            currYaw = self.bufferGyro[GYR_BUFFER_POS_YAW].getCurrentValue()
         except:
             pass
         finally:
@@ -129,7 +143,7 @@ class I2cHandler(Thread):
         currPitch = 0.0
         self.lock.acquire()
         try:
-            currPitch = self.currPitch[0]
+            currPitch = self.bufferGyro[GYR_BUFFER_POS_PITCH].getCurrentValue()
         except:
             pass
         finally:
@@ -146,7 +160,7 @@ class I2cHandler(Thread):
         currRoll = 0.0
         self.lock.acquire()
         try:
-            currRoll = self.currRoll[0]
+            currRoll = self.bufferGyro[GYR_BUFFER_POS_ROLL].getCurrentValue()
         except:
             pass
         finally:
@@ -196,16 +210,16 @@ class I2cHandler(Thread):
         return
 
 
-    def getDistanceFront(self):
+    def getDistanceLeftBack(self):
         """
         Description: Gets the distance value from the last measurement of the
-                     front sensor.
+                     back left sensor.
         Returns:     Int
         """
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceFront[0]
+            currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
         except:
             pass
         finally:
@@ -223,7 +237,25 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceLeftFront[0]
+            currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
+        except:
+            pass
+        finally:
+            self.lock.release()
+
+        return currDistance
+
+
+    def getDistanceFront(self):
+        """
+        Description: Gets the distance value from the last measurement of the
+                     front sensor.
+        Returns:     Int
+        """
+        currDistance = INVALID_VALUE
+        self.lock.acquire()
+        try:
+            currDistance = self.bufferDistance[DIST_BUFFER_POS_FRONT].getCurrentValue()
         except:
             pass
         finally:
@@ -241,25 +273,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceRightFront[0]
-        except:
-            pass
-        finally:
-            self.lock.release()
-
-        return currDistance
-
-
-    def getDistanceLeftBack(self):
-        """
-        Description: Gets the distance value from the last measurement of the
-                     back left sensor.
-        Returns:     Int
-        """
-        currDistance = INVALID_VALUE
-        self.lock.acquire()
-        try:
-            currDistance = self.currDistanceLeftBack[0]
+            currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
         except:
             pass
         finally:
@@ -277,7 +291,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.currDistanceRightBack[0]
+            currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
         except:
             pass
         finally:
@@ -323,28 +337,18 @@ class I2cHandler(Thread):
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally
-                    self.currDistanceLeftBack.append(self.distanceSensors.getDistanceLeftBack())
-                    self.currDistanceLeftFront.append(self.distanceSensors.getDistanceLeftFront())
-                    self.currDistanceFront.append(self.distanceSensors.getDistanceFront())
-                    self.currDistanceRightFront.append(self.distanceSensors.getDistanceRightFront())
-                    self.currDistanceRightBack.append(self.distanceSensors.getDistanceRightBack())
-
-                    self.currDistanceLeftBack.pop(0)
-                    self.currDistanceLeftFront.pop(0)
-                    self.currDistanceFront.pop(0)
-                    self.currDistanceRightFront.pop(0)
-                    self.currDistanceRightBack.pop(0)
-
+                    self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].add(self.distanceSensors.getDistanceLeftBack())
+                    self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].add(self.distanceSensors.getDistanceLeftFront())
+                    self.bufferDistance[DIST_BUFFER_POS_FRONT].add(self.distanceSensors.getDistanceFront())
+                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].add(self.distanceSensors.getDistanceRightFront())
+                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].add(self.distanceSensors.getDistanceRightBack())
 
                 if (self.threadMeasureOrientation):
                     if(self.senseHat.refreshOrientation()):
-                        # get orientation
-                        self.currYaw.append(self.senseHat.getYaw())
-                        self.currPitch.append(self.senseHat.getPitch())
-                        self.currRoll.append(self.senseHat.getRoll())
-                        self.currYaw.pop(0)
-                        self.currPitch.pop(0)
-                        self.currRoll.pop(0)
+                        # Get orientation
+                        self.bufferGyro[GYR_BUFFER_POS_YAW].add(self.senseHat.getYaw())
+                        self.bufferGyro[GYR_BUFFER_POS_PITCH].add(self.senseHat.getPitch())
+                        self.bufferGyro[GYR_BUFFER_POS_ROLL].add(self.senseHat.getRoll())
             except Exception as err:
                 self._printDebug("...Exception --> " + str(err))
             finally:

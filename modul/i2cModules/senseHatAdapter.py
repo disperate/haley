@@ -94,13 +94,9 @@ class SenseHatAdapter():
         Returns:     Float
         """
         charCode = self.getCharCode(newChar)
-        charCodePosition = 0
 
-        for x in range(0, 64):  # From 0 to 63
-            if charCodePosition < len(charCode):
-                if charCode[charCodePosition] == x:
-                    self.displayBuffer[x] = newColor
-                    charCodePosition = charCodePosition + 1
+        for pixelPosition in charCode:
+            self.displayBuffer[pixelPosition] = newColor
 
         return
 
