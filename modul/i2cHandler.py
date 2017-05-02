@@ -181,19 +181,18 @@ class I2cHandler(Thread):
         Description: Sets the roman number
         Args:        1. Number as integer or string
         """
-        print(self.__class__.__name__ + ": setRomanNumber...enter")
+        self._printDebug("setRomanNumber() ...enter")
         self.lock.acquire()
         try:
-            print(self.__class__.__name__ + ": setRomanNumber...try")
+            self._printDebug("setRomanNumber() ...try")
             self.dispRomanNumber = int(newNumber)
         except:
-            print(self.__class__.__name__ + ": setRomanNumber...except")
+            self._printDebug("setRomanNumber() ...except")
         finally:
-            print(self.__class__.__name__ + ": setRomanNumber...finally")
+            self._printDebug("setRomanNumber() ...finally")
             self.threadRefreshDisplay = True
             self.lock.release()
 
-        print(self.__class__.__name__ + ": setRomanNumber...leave")
         return
 
 
@@ -352,7 +351,6 @@ class I2cHandler(Thread):
                 self.lock.release()
 
             sleep((1 / 1000) * THREAD_SLEEP_MS)
-            # print(self.__class__.__name__ + ": Thread... loop")
 
         return
 

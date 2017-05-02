@@ -39,7 +39,7 @@ class SenseHatAdapter():
         """
         try:
             self.sense = SenseHat()
-            self.sense.set_imu_config(True, True, True)
+            self.sense.set_imu_config(False, True, False) # Gyroscope only
             return True
         except:
             return False
