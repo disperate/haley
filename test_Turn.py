@@ -1,11 +1,8 @@
 from modul import motor
 from modul import i2cHandler
-from common import pid
 import config
 
 from time import sleep
-
-controller = None
 
 try:
     motor = motor.motor()
@@ -14,18 +11,44 @@ try:
     i2c = i2cHandler.I2cHandler()
     i2c.start()
 
-    pid = pid.PID(0.01, 0, 0)
-    pid.SetPoint = 0.0
+    startAngle = i2c.currYaw
 
+    endAngleUnder = startAngle + 89
+    endAngleUpper = startAngle + 91
+
+    if endAngleUnder > 360:
+        endAngleUnder - 360
+
+    if endAngleUpper > 360:
+        endAngleUpper - 360
+
+    motor.setVelocityLeft(60)
+    motor.setVelocityRight(-60)
     while (True):
-        error = i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()
-        print(error)
-        if pid.update(error):
-            motor.setVelocityLeft(config.guidedDriveVelocity * (1 + pid.output))
-            motor.setVelocityRight(config.guidedDriveVelocity)
+        currentAngle = i2c.currYaw
 
-        sleep(0.0001)
+        if(endAngleUnder - currentAngle < 20):
+            motor.setVelocityLeft(20)
+            motor.setVelocityRight(-20)
 
+
+        if currentAngle > endAngleUpper:
+            motor.setVelocityLeft(-20)
+            motor.setVelocityRight(20)
+
+        print("\033c")
+        print("Start Angle:" + str(startAngle))
+        print("endAngleUnder" +  str(endAngleUnder))
+        print("endAngleUpper" + str( endAngleUpper))
+        print("Current Angle:" +  str(currentAngle))
+
+        if(currentAngle > endAngleUnder and currentAngle < endAngleUpper):
+            break
+
+        sleep(0.01)
+
+    motor.setVelocityLeft(0)
+    motor.setVelocityRight(0)
 
 except KeyboardInterrupt:
     motor.terminate()
