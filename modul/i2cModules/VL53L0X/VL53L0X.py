@@ -21,6 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+#
+# (2017.05.02): Added "status" attribute in "constructor" and "get_timing()"
+#
 
 import time
 from ctypes import *
@@ -89,6 +92,7 @@ class VL53L0X(object):
 
     def __init__(self, address=0x29, TCA9548A_Num=255, TCA9548A_Addr=0, **kwargs):
         """Initialize the VL53L0X ToF Sensor from ST"""
+        self.status = 0
         self.device_address = address
         self.TCA9548A_Device = TCA9548A_Num
         self.TCA9548A_Address = TCA9548A_Addr
@@ -115,6 +119,8 @@ class VL53L0X(object):
         budget = c_uint(0)
         budget_p = pointer(budget)
         Status = tof_lib.VL53L0X_GetMeasurementTimingBudgetMicroSeconds(Dev, budget_p)
+        self.status = Status
+
         if (Status == 0):
             return (budget.value + 1000)
         else:
