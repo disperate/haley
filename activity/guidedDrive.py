@@ -11,7 +11,7 @@ class guidedDriveActivity(Thread):
         self._running = True
         self._motorController = motor
         self._i2c = i2c
-        self._pid = pid.PID(0.001, 0, 0)
+        self._pid = pid.PID(0.01, 0, 0)
         self._pid.SetPoint=0.0
 
     def terminate(self):
@@ -26,4 +26,4 @@ class guidedDriveActivity(Thread):
             if self._pid.update(error):
                 self._motorController.setVelocityLeft(config.guidedDriveVelocity * (1 + self._pid.output))
                 self._motorController.setVelocityRight(config.guidedDriveVelocity)
-            time.sleep(0.001)
+            time.sleep(0.0001)
