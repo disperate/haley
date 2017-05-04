@@ -8,7 +8,15 @@
 # Description:  This class provides:
 #               - Initialization and access to the Distance-Sensors via I2C
 #               - Distance-Sensors: VL53L0X Time-of-Flight (ToF) ranging sensor
+#
+#               - BCM XX (Pin 01) - 3.3V DC Power
+#               - BCM 02 (Pin 03) - SDA1, I2C
+#               - BCM 03 (Pin 05) - SCL1, 12C
+#               - BCM XX (Pin 06) - GND
 #------------------------------------------------------------------------------
+#
+# Tests passed: - Channel tests (14, 15, 21, 26, 27) (2017.05.02)
+#               - Init tests: Max. 5 retries if init fails (2017.05.02)
 #
 # ToDo:         - TESTING!
 #
@@ -16,28 +24,27 @@
 
 # Imports
 from modul.i2cModules.VL53L0X import SensorItem
-from time import sleep
 
 
 # Sensor Constants
 SENSOR_LEFT_BACK                        = 0
-SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR    = 14
+SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR    = 14 # Test OK
 SENSOR_LEFT_BACK_I2C_ADDRESS            = 0x30
 
 SENSOR_LEFT_FRONT                       = 1
-SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR   = 15
+SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR   = 15 # Test OK
 SENSOR_LEFT_FRONT_I2C_ADDRESS           = 0x31
 
 SENSOR_FRONT                            = 2
-SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR        = 21
+SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR        = 21 # Test OK
 SENSOR_FRONT_I2C_ADDRESS                = 0x32
 
 SENSOR_RIGHT_FRONT                      = 3
-SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR  = 26
+SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR  = 26 # Test OK
 SENSOR_RIGHT_FRONT_I2C_ADDRESS          = 0x33
 
 SENSOR_RIGHT_BACK                       = 4
-SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR   = 27
+SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR   = 27 # Test OK
 SENSOR_RIGHT_BACK_I2C_ADDRESS           = 0x34
 
 # Other Constants
@@ -77,11 +84,10 @@ class DistanceSensorAdapter():
             if (SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR != 0):
                 self._sensors[SENSOR_RIGHT_BACK]    = SensorItem.SensorItem(SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR, SENSOR_RIGHT_BACK_I2C_ADDRESS)
 
-            for currSensor in self._sensors:
-                if currSensor is not None:
-                    currSensor.initSensor()
-                    sleep(0.1)
-                    currSensor.startRanging()
+            for x in range(0,5):
+                if(self._sensors[x] is not None):
+                    while ((self._sensors[x].isRunning() is False) and (self._sensors[x].initCounter < 5)):
+                        self._sensors[x].startRanging()
 
             self._printDebug("...done!")
             return True
