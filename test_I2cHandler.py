@@ -23,7 +23,7 @@ try:
         sleep(0.1)
         print("\033c")
         print("Left Back: {:4d}, Left Front: {:4d}, Front: {:4d}".format(handler.getDistanceLeftBack(), handler.getDistanceLeftFront(), handler.getDistanceFront()))
-        print("Pitch: {0:3.3f}, Yaw: {0:3.3f}, Roll: {0:3.3f}".format(handler.getCurrPitch(), handler.getCurrYaw(), handler.getCurrRoll()))
+        #print("Pitch: {0:3.3f}, Yaw: {0:3.3f}, Roll: {0:3.3f}".format(handler.getCurrPitch(), handler.getCurrYaw(), handler.getCurrRoll()))
 
     handler.terminate()
 

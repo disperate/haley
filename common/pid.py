@@ -40,7 +40,7 @@ class PID:
         self.Ki = I
         self.Kd = D
 
-        self.sample_time = 0.00
+        self.sample_time = 100.0
         self.current_time = time.time()
         self.last_time = self.current_time
 
@@ -57,7 +57,7 @@ class PID:
 
         # Windup Guard
         self.int_error = 0.0
-        self.windup_guard = 20.0
+        self.windup_guard = 0.5
 
         self.output = 0.0
 
