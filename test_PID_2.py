@@ -24,18 +24,18 @@ try:
     pid_angle.setWindup(0.3)
     pid_angle.sample_time = 0.01
 
-    print("Test: 1.0")
-    print("Time; Soll1; Ist1; Err1; Out1; ; Soll2; Ist2; Err2; Out2;")
+    print("Test: 1.0 ")
+    print("Time; SollD; IstD; ErrD; OutD; ; SollW; IstW; ErrW; OutW;")
 
     while (True):
         ist_dist = i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()
-        ist_angle = -atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack()-0.5)) / 180)
+        ist_angle = atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack()-0.5)) / 180)
         pid_dist.SetPoint = 0.0
         if pid_dist.update(ist_dist):
             soll_angle = pid_dist.output
             pid_angle.SetPoint = soll_angle
-            reg1_out_str = str(round(pid_dist.current_time,0)) +"; "+ str(round(ist_dist, 3)) +"; "+\
-                           str(round(ist_dist, 3)) +"; "+ str(round(soll_angle, 1)) +"; "+
+            regD_out_str = str(round(pid_dist.current_time,0)) +"; "+ str(round(ist_dist, 3)) +"; "+\
+                           str(round(ist_dist, 3)) +"; "+ str(round(soll_angle, 1)) +"; "
 
             if pid_angle.update(ist_angle):
                 DeltaVelocityLeft_proz = pid_angle.output
@@ -44,14 +44,14 @@ try:
                 motor.setVelocityRight(config.guidedDriveVelocity)
     #            motor.setVelocityLeft(100 * DeltaVelocityLeft_proz)
     #            motor.setVelocityRight(100 * -DeltaVelocityLeft_proz)
-                reg2_out_str = str(round(soll_angle, 3)) +" ; "+ str(round(ist_angle, 3)) +" ; "+\
+                regW_out_str = str(round(soll_angle, 3)) +" ; "+ str(round(ist_angle, 3)) +" ; "+\
                                str(round(soll_angle-ist_angle, 3)) +" ; "+\
                                str(round(DeltaVelocityLeft_proz,3))
 
             #print("\033c")
-            print(reg1_out_str + reg2_out_str)
-            reg1_out_str = ""
-            reg2_out_str = ""
+            print(regD_out_str + regW_out_str)
+            regD_out_str = ""
+            regW_out_str = ""
 
         sleep(0.0001)
 
