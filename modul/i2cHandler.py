@@ -102,6 +102,12 @@ class I2cHandler(Thread):
         self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
         self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
 
+        self.DistanceLB = 0
+        self.DistanceLF = 0
+        self.DistanceF = 0
+        self.DistanceRF = 0
+        self.DistanceRB = 0
+
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
 
@@ -240,7 +246,8 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
+            currDistance = self.DistanceLB
+            #currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
         except:
             pass
         finally:
@@ -258,7 +265,8 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
+            currDistance = self.DistanceLF
+            #currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
         except:
             pass
         finally:
@@ -276,7 +284,8 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.bufferDistance[DIST_BUFFER_POS_FRONT].getCurrentValue()
+            currDistance = self.DistanceF
+            #currDistance = self.bufferDistance[DIST_BUFFER_POS_FRONT].getCurrentValue()
         except:
             pass
         finally:
@@ -294,7 +303,8 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
+            currDistance = self.DistanceRF
+            #currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
         except:
             pass
         finally:
@@ -312,7 +322,8 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
+            currDistance = self.DistanceRB
+            #currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
         except:
             pass
         finally:
@@ -371,11 +382,16 @@ class I2cHandler(Thread):
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally
-                    self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].add(self.distanceSensors.getDistanceLeftBack())
-                    self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].add(self.distanceSensors.getDistanceLeftFront())
-                    self.bufferDistance[DIST_BUFFER_POS_FRONT].add(self.distanceSensors.getDistanceFront())
-                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].add(self.distanceSensors.getDistanceRightFront())
-                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].add(self.distanceSensors.getDistanceRightBack())
+                    self.DistanceLB = self.distanceSensors.getDistanceLeftBack()
+                    self.DistanceLF = self.distanceSensors.getDistanceLeftFront()
+                    self.DistanceRB = self.distanceSensors.getDistanceRightBack()
+                    self.DistanceRF = self.distanceSensors.getDistanceRightFront()
+                    self.DistanceF = self.distanceSensors.getDistanceFront()
+                    self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].add(self.DistanceLB)
+                    self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].add(self.DistanceLF)
+                    self.bufferDistance[DIST_BUFFER_POS_FRONT].add(self.DistanceF)
+                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].add(self.DistanceRF)
+                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].add(self.DistanceRB)
 
                 if (self.threadMeasureOrientation):
                     if(self.senseHat.refreshOrientation()):
