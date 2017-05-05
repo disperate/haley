@@ -119,5 +119,5 @@ class Haley(object):
         self.guidedDriveActivity.terminate()
 
     def initTurning(self):
-        turnThread = Thread(target=turn.turnActivity, args=(self,))
+        turnThread = Thread(target=turn.turnActivity, args=(self, self.motorModul, self.i2c))
         turnThread.start()
