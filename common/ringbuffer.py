@@ -12,12 +12,12 @@ class Ringbuffer():
     # Konstruktor
     # --------------------------------------------------------------------------
     def __init__(self, size = 5):
-        print(self.__class__.__name__ + ": Init ringbuffer with {} elements...".format(size))
+        self._printDebug("Init ringbuffer with {} elements...".format(size))
         self.size = size
         self.type = None
         self.buffer = [None] * size
         self.pointer = -1;
-        print(self.__class__.__name__ + ": ... done")
+        self._printDebug("...done!")
 
 
     def add(self, value):
@@ -69,6 +69,13 @@ class Ringbuffer():
         return self.buffer[self.pointer]
 
 
+    def getPreviousValue(self):
+        if(self.pointer > 0):
+            return self.buffer[self.pointer - 1]
+        else:
+            return self.buffer[self.size - 1]
+
+
     def getArithmeticMean(self):
         if(self.isFull()):
             result = 0.0
@@ -95,4 +102,4 @@ class Ringbuffer():
 
     def _printDebug(self, message):
         if (__debug__):
-            print("  {}: {}".format(self.__class__.__name__, message))
+            print("    {}: {}".format(self.__class__.__name__, message))
