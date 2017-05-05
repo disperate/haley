@@ -1,29 +1,33 @@
 from threading import Thread
 import time
 import pigpio
+import config
 
 class buttonpresser(Thread):
 
+    _goLeft = False
+    _goRight = False
 
     def __init__(self):
         super().__init__()
-        self._DCMOT_IN1 = 19
-        self._DCMOT_IN2 = 18
-
-        # Only for testing
-        self._SWITCH1 = 5
-        self._SWITCH2 = 6
-        self._BUTTON = 4
 
         self._pi = pigpio.pi()
         self._running = True
-        self._romanNumber = None
+
+    def left(self):
+        self._goLeft = True
+        self._goRight = False
+
+    def right(self):
+        self._goRight = True
+        self._goLeft = False
 
     def terminate(self):
         self._running = False
 
     def run(self):
-        while (self._running):
-            #self._pi.write(18, self._pi.read(self._SWITCH1))
-            #self._pi.write(19, self._pi.read(self._SWITCH2))
-            time.sleep(0.1)
+
+        while self._running:
+            self._pi.write(config.DCMOT_IN1, self._goLeft)
+            self._pi.write(config.DCMOT_IN2, self._goRight)
+            time.sleep(0.01)

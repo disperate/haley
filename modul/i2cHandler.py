@@ -299,6 +299,19 @@ class I2cHandler(Thread):
 
         return currDistance
 
+    def getDistance(self, direction, drivingDirection):
+        if(direction.LEFT):
+            if(drivingDirection.FORWARD):
+                return self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
+            else:
+                return self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
+        else:
+            if (drivingDirection.FORWARD):
+                return self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
+            else:
+                return self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
+
+
 
     def terminate(self):
         """
