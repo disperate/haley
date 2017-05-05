@@ -22,6 +22,10 @@ class buttonpresser(Thread):
         self._goRight = True
         self._goLeft = False
 
+    def stop(self):
+        self._goRight = False
+        self._goLeft = False
+
     def terminate(self):
         self._running = False
 
