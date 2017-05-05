@@ -93,6 +93,7 @@ class I2cHandler(Thread):
         self.bufferGyro[GYR_BUFFER_POS_YAW] = ringbuffer.Ringbuffer(BUFFER_SIZE)
         self.bufferGyro[GYR_BUFFER_POS_PITCH] = ringbuffer.Ringbuffer(BUFFER_SIZE)
         self.bufferGyro[GYR_BUFFER_POS_ROLL] = ringbuffer.Ringbuffer(BUFFER_SIZE)
+        self.currRelativeYaw = 0;
 
         self.bufferDistance = [None] * 5
         self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
@@ -167,6 +168,26 @@ class I2cHandler(Thread):
             self.lock.release()
 
         return currRoll
+
+
+    def _setRelativeYaw(self):
+        currentValue = self.bufferGyro[GYR_BUFFER_POS_YAW].getCurrentValue()
+        previousValue = self.bufferGyro[GYR_BUFFER_POS_YAW].getPreviousValue()
+
+        if((currentValue is not None) and (previousValue is not None)):
+            # Check if the value jumps between 360° and 0°
+            if(abs(currentValue - previousValue) < 90.0):
+                self.currRelativeYaw = self.currRelativeYaw + (currentValue - previousValue)
+            else:
+                # Now it's getting dirty!
+                if(previousValue < currentValue):
+                    self.currRelativeYaw = self.currRelativeYaw - (360.0 - currentValue + previousValue)
+                else:
+                    self.currRelativeYaw = self.currRelativeYaw + (360.0 - previousValue + currentValue)
+
+
+    def resetRelativeYaw(self):
+        self.currRelativeYaw = 0.0
 
 
     def setStatus(self, newNumber, newState):
@@ -362,6 +383,7 @@ class I2cHandler(Thread):
                         self.bufferGyro[GYR_BUFFER_POS_YAW].add(self.senseHat.getYaw())
                         self.bufferGyro[GYR_BUFFER_POS_PITCH].add(self.senseHat.getPitch())
                         self.bufferGyro[GYR_BUFFER_POS_ROLL].add(self.senseHat.getRoll())
+                        self._setRelativeYaw()
             except Exception as err:
                 self._printDebug("...Exception --> " + str(err))
             finally:

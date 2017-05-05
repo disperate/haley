@@ -33,6 +33,7 @@ try:
             handler.getCurrPitch(),
             handler.getCurrYaw(),
             handler.getCurrRoll()))
+        print("Current relative yaw: {}".format(handler.currRelativeYaw))
 
     handler.terminate()
 

@@ -45,7 +45,7 @@ try:
         if(currentAngle > endAngleUnder and currentAngle < endAngleUpper):
             break
 
-        sleep(0.01)
+        sleep(0.1)
 
     motor.setVelocityLeft(0)
     motor.setVelocityRight(0)
