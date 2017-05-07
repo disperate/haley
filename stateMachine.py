@@ -30,7 +30,7 @@ class Haley(object):
 
     direction = None
 
-    hasTurned = False
+    turned = False
 
     def __init__(self, name):
 
@@ -112,12 +112,19 @@ class Haley(object):
         self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul, self.i2c)
         self.guidedDriveActivity.start()
 
-        lostWallsThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
-        lostWallsThread.start()
+        wallsLostThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
+        wallsLostThread.start()
 
     def exitGuidedDrive(self):
         self.guidedDriveActivity.terminate()
 
     def initTurning(self):
-        turnThread = Thread(target=turn.turnActivity, args=(self, self.motorModul, self.i2c))
+        turnThread = turn.turnActivity(self, self.motorModul, self.i2c)
         turnThread.start()
+
+    def hasTurned(self):
+        return self.turned
+
+
+
+

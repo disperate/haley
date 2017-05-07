@@ -1,5 +1,6 @@
 from threading import Thread
 from time import sleep
+from common import drivingUtilities
 
 THREAD_SLEEP_MS = 100
 
@@ -7,28 +8,44 @@ class turnActivity(Thread):
     def __init__(self, fsm, motorController, i2cHandler):
         super().__init__()
         self._direction = fsm.direction
-        self._motorController = motorController
-        self._i2cHandler = i2cHandler
+        self._motor = motorController
+        self._i2c = i2cHandler
+        self._util = drivingUtilities.DrivingUtilities(self._i2c, self._motor)
 
     def run(self):
         # 1. Drive straight ahead for a specific time
-        self._driveStraightAhead(60, 1000)
+        print("Drive 1 sec")
+        self._motor.setVelocityRight(60)
+        self._motor.setVelocityLeft(60)
+        sleep(0.5)
 
         # 2. Turn haley 90°
-        self._turn(90)
+        print("Turn 90")
+        self._util.turn(-90)
 
         # 3. Drive straight ahead until front sensor < 7cm
+        print("Drive straight ahead until front sensor < 7cm")
+        self._motor.setVelocityRight(40)
+        self._motor.setVelocityLeft(40)
+
+        while self._i2c.getDistanceFront() > 100:
+            print("Wall is ahead: " + str(self._i2c.getDistanceFront()))
+            sleep(0.001)
+
+        self._motor.setVelocityRight(0)
+        self._motor.setVelocityLeft(0)
 
 
         # 4. Turn haley 90° again
-
+        self._util.turn(-90)
 
         # 5. Check sensors if haley is parallel
 
 
         # 6. Drive straight ahead until sensors on both sides get ze right dimension
 
-
+        self._motor.setVelocityRight(60)
+        self._motor.setVelocityLeft(60)
         # sleep((1 / 1000) * THREAD_SLEEP_MS)
 
 
@@ -36,62 +53,3 @@ class turnActivity(Thread):
         self._motorController(velocity)
         self._motorController(velocity)
         sleep(timeInMs)
-
-
-    def _turn(self, angle):
-        self._i2cHandler.resetRelativeYaw()
-
-        if(angle < 0):
-            # Turn left
-            while(True):
-                currDelta = (abs(angle) - abs(self._i2cHandler.currRelativeYaw)) > 10
-                if(currDelta > 10):
-                    self._motorController.setVelocityLeft(-50)
-                    self._motorController.setVelocityRight(50)
-                else:
-                    self._motorController.setVelocityLeft(-20)
-                    self._motorController.setVelocityRight(20)
-
-                if(angle - (self._i2cHandler.currRelativeYaw) > 0):
-                    break
-        else:
-            # Turn right
-            while(True):
-                pass
-
-
-
-
-        while(True):
-            if(angle < )
-
-            if (endAngleUnder - currentAngle < 20):
-                motor.setVelocityLeft(20)
-                motor.setVelocityRight(-20)
-
-
-
-
-
-
-
-
-        # 1. Drive straight ahead for a specific time
-        motor.setVelocityLeft(60)
-        motor.setVelocityRight(60)
-
-        # 2. Turn haley 90°
-        fsm.direction
-
-        # 3. Drive straight ahead until front sensor < 7cm
-
-
-        # 4. Turn haley 90° again
-
-
-        # 5. Check sensors if haley is parallel
-
-
-        # 6. Drive straight ahead until sensors on both sides get ze right dimension
-        motor.setVelocityLeft(60)
-        motor.setVelocityRight(60)
