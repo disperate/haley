@@ -1,6 +1,7 @@
 from threading import Thread
 from time import sleep
 from common import drivingUtilities
+from haleyenum import direction
 
 THREAD_SLEEP_MS = 100
 
@@ -13,22 +14,33 @@ class turnActivity(Thread):
         self._util = drivingUtilities.DrivingUtilities(self._i2c, self._motor)
 
     def run(self):
+
         # 1. Drive straight ahead for a specific time
         print("Drive 1 sec")
-        self._motor.setVelocityRight(60)
-        self._motor.setVelocityLeft(60)
-        sleep(0.5)
+        self._motor.setVelocityRight(70)
+        self._motor.setVelocityLeft(70)
+        sleep(0.7)
 
         # 2. Turn haley 90°
         print("Turn 90")
-        self._util.turn(-90)
+        if self._direction is direction.direction.LEFT:
+            self._util.turn(90)
+        if self._direction is direction.direction.RIGHT:
+            self._util.turn(-90)
 
         # 3. Drive straight ahead until front sensor < 7cm
         print("Drive straight ahead until front sensor < 7cm")
-        self._motor.setVelocityRight(40)
-        self._motor.setVelocityLeft(40)
+        self._motor.setVelocityRight(80)
+        self._motor.setVelocityLeft(80)
 
-        while self._i2c.getDistanceFront() > 100:
+        while self._i2c.getDistanceFront() > 150:
+            print("Driving fast: " + str(self._i2c.getDistanceFront()))
+            sleep(0.001)
+
+        self._motor.setVelocityRight(30)
+        self._motor.setVelocityLeft(30)
+
+        while self._i2c.getDistanceFront() > 80:
             print("Wall is ahead: " + str(self._i2c.getDistanceFront()))
             sleep(0.001)
 
@@ -37,19 +49,19 @@ class turnActivity(Thread):
 
 
         # 4. Turn haley 90° again
-        self._util.turn(-90)
+        print("Turn 90")
+        if self._direction is direction.direction.LEFT:
+            self._util.turn(90)
+        if self._direction is direction.direction.RIGHT:
+            self._util.turn(-90)
 
         # 5. Check sensors if haley is parallel
-
+        self._util.adjustToWall(self._direction)
 
         # 6. Drive straight ahead until sensors on both sides get ze right dimension
 
         self._motor.setVelocityRight(60)
         self._motor.setVelocityLeft(60)
-        # sleep((1 / 1000) * THREAD_SLEEP_MS)
 
-
-    def _driveStraightAhead(self, velocity, timeInMs):
-        self._motorController(velocity)
-        self._motorController(velocity)
-        sleep(timeInMs)
+        self._fsm.turned = True
+        self._fsm.turnDone()

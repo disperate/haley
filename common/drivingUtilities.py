@@ -22,6 +22,7 @@
 
 # Imports
 from time import sleep
+from haleyenum import direction
 import math
 
 # Constants
@@ -138,6 +139,35 @@ class DrivingUtilities():
                         continue
 
                     sleep(1 / LOOP_FREQUENCY)
+
+    def adjustToWall(self, _direction):
+
+        while(True):
+            if _direction is direction.direction.RIGHT:
+                frontDistance = self.i2cHandler.getDistanceLeftFront()
+                backDistance = self.i2cHandler.getDistanceLeftBack()
+                diff = frontDistance - backDistance
+
+            if _direction is direction.direction.LEFT:
+                frontDistance = self.i2cHandler.getDistanceRightFront()
+                backDistance = self.i2cHandler.getDistanceRightBack()
+                diff = backDistance -frontDistance
+
+            if abs(diff) > 10:
+                if diff > 0:
+                    print("Correcting angle, distance diff was: " + str(diff))
+                    self.turn(0.3)
+                else:
+                    print("Correcting angle, distance diff was: " + str(diff))
+                    self.turn(-0.3)
+
+                sleep(0.3)
+            else:
+                print("accepted diff: " + str(diff))
+                break
+
+
+
 
 
     def _printDebug(self, message):
