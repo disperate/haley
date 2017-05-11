@@ -23,7 +23,7 @@ class Haley(object):
         {'name': 'ready', 'on_enter': 'initReady'},
         {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen', 'on_exit' : 'exitWaitForGreen'},
         {'name': 'blindDrive','on_enter': 'initBlindDrive', 'on_exit' : 'exitBlindDrive'},
-        {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive'},
+        {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive', 'on_exit' : 'exitGuidedDrive'},
         {'name': 'turning', 'on_enter': 'initTurning'},
         {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
         'end']

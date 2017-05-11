@@ -8,6 +8,7 @@ THREAD_SLEEP_MS = 100
 class turnActivity(Thread):
     def __init__(self, fsm, motorController, i2cHandler):
         super().__init__()
+        self._fsm = fsm
         self._direction = fsm.direction
         self._motor = motorController
         self._i2c = i2cHandler

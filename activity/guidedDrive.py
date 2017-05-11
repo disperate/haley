@@ -15,15 +15,10 @@ class guidedDriveActivity(Thread):
         self._pid.SetPoint=0.0
 
     def terminate(self):
-        self._motorController.setVelocityLeft(0.0)
-        self._motorController.setVelocityRight(0.0)
         self._running = False
 
     def run(self):
         while(self._running):
-            error = self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()
-            print(error)
-            if self._pid.update(error):
-                self._motorController.setVelocityLeft(config.guidedDriveVelocity * (1 + self._pid.output))
-                self._motorController.setVelocityRight(config.guidedDriveVelocity)
-            time.sleep(0.0001)
+            self._motorController.setVelocityLeft(60.0)
+            self._motorController.setVelocityRight(60.0)
+            time.sleep(0.01)
