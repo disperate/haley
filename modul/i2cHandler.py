@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
-# Version:      0.4
 #-------------------------------------------------------------------------------
 # Class:        I2cHandler
 # Description:  This class provides:
@@ -50,7 +49,6 @@
 #               - Write states to display (2017.04.07)
 #               - Read gyro-states (2017.04.07)
 #
-# ToDo:         - Adding sensor
 #------------------------------------------------------------------------------
 
 # Imports
@@ -59,24 +57,11 @@ from threading import RLock
 from time import sleep
 from modul.i2cModules import senseHatAdapter
 from modul.i2cModules import distanceSensorAdapter
-from common import ringbuffer
 
 # Constants
 INVALID_VALUE               = -1
 DISPLAY_MAX_STATES          = 8
 THREAD_SLEEP_MS             = 100
-
-BUFFER_SIZE                 = 5
-
-GYR_BUFFER_POS_YAW          = 0
-GYR_BUFFER_POS_PITCH        = 1
-GYR_BUFFER_POS_ROLL         = 2
-
-DIST_BUFFER_POS_LEFT_BACK   = 0
-DIST_BUFFER_POS_LEFT_FRONT  = 1
-DIST_BUFFER_POS_FRONT       = 2
-DIST_BUFFER_POS_RIGHT_FRONT = 3
-DIST_BUFFER_POS_RIGHT_BACK  = 4
 
 class I2cHandler(Thread):
     # Konstruktor
@@ -89,24 +74,15 @@ class I2cHandler(Thread):
         self.lock = RLock()
 
         # Protected field by lock
-        self.bufferGyro = [None] * 3
-        self.bufferGyro[GYR_BUFFER_POS_YAW] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferGyro[GYR_BUFFER_POS_PITCH] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferGyro[GYR_BUFFER_POS_ROLL] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.currRelativeYaw = 0;
-
-        self.bufferDistance = [None] * 5
-        self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferDistance[DIST_BUFFER_POS_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-        self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK] = ringbuffer.Ringbuffer(BUFFER_SIZE)
-
-        self.DistanceLB = 0
-        self.DistanceLF = 0
-        self.DistanceF = 0
-        self.DistanceRF = 0
-        self.DistanceRB = 0
+        self.currDistanceLeftBack   = 0
+        self.currDistanceLeftFront  = 0
+        self.currDistanceFront      = 0
+        self.currDistanceRightFront = 0
+        self.currDistanceRightBack  = 0
+        self.currYaw                = 0.0
+        self.prevYaw                = 0.0
+        self.currPitch              = 0.0
+        self.currRoll               = 0.0
 
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
@@ -133,7 +109,7 @@ class I2cHandler(Thread):
         currYaw = 0.0
         self.lock.acquire()
         try:
-            currYaw = self.bufferGyro[GYR_BUFFER_POS_YAW].getCurrentValue()
+            currYaw = self.currYaw
         except:
             pass
         finally:
@@ -150,7 +126,7 @@ class I2cHandler(Thread):
         currPitch = 0.0
         self.lock.acquire()
         try:
-            currPitch = self.bufferGyro[GYR_BUFFER_POS_PITCH].getCurrentValue()
+            currPitch = self.currPitch
         except:
             pass
         finally:
@@ -167,7 +143,7 @@ class I2cHandler(Thread):
         currRoll = 0.0
         self.lock.acquire()
         try:
-            currRoll = self.bufferGyro[GYR_BUFFER_POS_ROLL].getCurrentValue()
+            currRoll = self.currRoll
         except:
             pass
         finally:
@@ -177,8 +153,8 @@ class I2cHandler(Thread):
 
 
     def _setRelativeYaw(self):
-        currentValue = self.bufferGyro[GYR_BUFFER_POS_YAW].getCurrentValue()
-        previousValue = self.bufferGyro[GYR_BUFFER_POS_YAW].getPreviousValue()
+        currentValue = self.currYaw
+        previousValue = self.prevYaw
 
         if((currentValue is not None) and (previousValue is not None)):
             # Check if the value jumps between 360° and 0°
@@ -246,8 +222,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.DistanceLB
-            #currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
+            currDistance = self.currDistanceLeftBack
         except:
             pass
         finally:
@@ -265,8 +240,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.DistanceLF
-            #currDistance = self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
+            currDistance = self.currDistanceLeftFront
         except:
             pass
         finally:
@@ -284,8 +258,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.DistanceF
-            #currDistance = self.bufferDistance[DIST_BUFFER_POS_FRONT].getCurrentValue()
+            currDistance = self.currDistanceFront
         except:
             pass
         finally:
@@ -303,8 +276,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.DistanceRF
-            #currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
+            currDistance = self.currDistanceRightFront
         except:
             pass
         finally:
@@ -322,8 +294,7 @@ class I2cHandler(Thread):
         currDistance = INVALID_VALUE
         self.lock.acquire()
         try:
-            currDistance = self.DistanceRB
-            #currDistance = self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
+            currDistance = self.currDistanceRightBack
         except:
             pass
         finally:
@@ -334,14 +305,14 @@ class I2cHandler(Thread):
     def getDistance(self, direction, drivingDirection):
         if(direction.LEFT):
             if(drivingDirection.FORWARD):
-                return self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].getCurrentValue()
+                return self.currDistanceLeftFront
             else:
-                return self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].getCurrentValue()
+                return self.currDistanceLeftBack
         else:
             if (drivingDirection.FORWARD):
-                return self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].getCurrentValue()
+                return self.currDistanceRightFront
             else:
-                return self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].getCurrentValue()
+                return self.currDistanceRightBack
 
 
 
@@ -377,29 +348,25 @@ class I2cHandler(Thread):
                     self.senseHat.setStatusLeds(self.dispStatesList)
                     self.senseHat.setRomanNumber(self.dispRomanNumber)
                     self.senseHat.refreshDisplay()
-
                     self.threadRefreshDisplay = False
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally
-                    self.DistanceLB = self.distanceSensors.getDistanceLeftBack()
-                    self.DistanceLF = self.distanceSensors.getDistanceLeftFront()
-                    self.DistanceRB = self.distanceSensors.getDistanceRightBack()
-                    self.DistanceRF = self.distanceSensors.getDistanceRightFront()
-                    self.DistanceF = self.distanceSensors.getDistanceFront()
-                    self.bufferDistance[DIST_BUFFER_POS_LEFT_BACK].add(self.DistanceLB)
-                    self.bufferDistance[DIST_BUFFER_POS_LEFT_FRONT].add(self.DistanceLF)
-                    self.bufferDistance[DIST_BUFFER_POS_FRONT].add(self.DistanceF)
-                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_FRONT].add(self.DistanceRF)
-                    self.bufferDistance[DIST_BUFFER_POS_RIGHT_BACK].add(self.DistanceRB)
+                    self.currDistanceLeftBack = self.distanceSensors.getDistanceLeftBack()
+                    self.currDistanceLeftFront = self.distanceSensors.getDistanceLeftFront()
+                    self.currDistanceFront = self.distanceSensors.getDistanceFront()
+                    self.currDistanceRightFront = self.distanceSensors.getDistanceRightFront()
+                    self.currDistanceRightBack = self.distanceSensors.getDistanceRightBack()
 
                 if (self.threadMeasureOrientation):
                     if(self.senseHat.refreshOrientation()):
                         # Get orientation
-                        self.bufferGyro[GYR_BUFFER_POS_YAW].add(self.senseHat.getYaw())
-                        self.bufferGyro[GYR_BUFFER_POS_PITCH].add(self.senseHat.getPitch())
-                        self.bufferGyro[GYR_BUFFER_POS_ROLL].add(self.senseHat.getRoll())
+                        self.prevYaw = self.currYaw
+                        self.currYaw = self.senseHat.getYaw()
+                        self.currPitch = self.senseHat.getPitch()
+                        self.currRoll = self.senseHat.getRoll()
                         self._setRelativeYaw()
+
             except Exception as err:
                 self._printDebug("...Exception --> " + str(err))
             finally:
