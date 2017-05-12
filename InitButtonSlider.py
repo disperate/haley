@@ -4,6 +4,7 @@ from time import sleep
 import config
 
 controller = None
+i2c = None
 
 try:
     buttonpresser = buttonpresser.buttonpresser()

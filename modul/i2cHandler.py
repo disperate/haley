@@ -84,6 +84,7 @@ class I2cHandler(Thread):
         self.currPitch              = 0.0
         self.currRoll               = 0.0
         self.currRelativeYaw        = 0.0
+        self.currSenseHatEvents     = None
 
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
@@ -92,6 +93,7 @@ class I2cHandler(Thread):
         self.threadMeasureOrientation = True
         self.threadMeasureDistance = True
         self.threadRefreshDisplay = False
+        self.threadReadSenseHatEvents = False
 
         # Used modules
         self.senseHat = senseHatAdapter.SenseHatAdapter()
@@ -102,6 +104,19 @@ class I2cHandler(Thread):
 
     # Funktions
     # --------------------------------------------------------------------------
+    def isJoystickPressed(self, sAction, sDirection):
+        if(self.currSenseHatEvents is not None):
+            for event in self.currSenseHatEvents:
+                if (event.action == sAction and event.direction == sDirection):
+                    return True
+
+        return False
+
+
+    def readSenseHatEvents(self):
+        self.threadReadSenseHatEvents = True
+
+
     def getCurrYaw(self):
         """
         Description: Gets the yaw-value from the last measurement
@@ -350,6 +365,10 @@ class I2cHandler(Thread):
                     self.senseHat.setRomanNumber(self.dispRomanNumber)
                     self.senseHat.refreshDisplay()
                     self.threadRefreshDisplay = False
+
+                if(self.threadReadSenseHatEvents):
+                    self.currSenseHatEvents = self.senseHat.getEvents()
+                    self.threadReadSenseHatEvents = False
 
                 if (self.threadMeasureDistance):
                     # Do measurements and save the results locally

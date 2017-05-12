@@ -62,6 +62,10 @@ class SenseHatAdapter():
             return False
 
 
+    def getEvents(self):
+        return self.sense.stick.get_events()
+
+
     def getPitch(self):
         """
         Description: Gets the pitch-value from the last forced measurement

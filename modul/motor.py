@@ -40,7 +40,6 @@ BCM_PIN_NR_DIRECTION_LEFT = 16
 BCM_PIN_NR_DIRECTION_RIGHT = 17
 BCM_PIN_NR_ENABLE = 22
 
-
 PWM_DEFAULT_DUTYCYCLE = 250000 # 25%
 MIN_FREQUENCY = 0
 MAX_FREQUENCY = 700
@@ -117,6 +116,13 @@ class motor(Thread):
         return
 
 
+    def getCurrVelocityLeft(self):
+        if(self.motorLeftDirection is DrivingDirection.FORWARD.value):
+            return (100.0 / MAX_FREQUENCY) * self.motorLeftCurrVelocity
+        else:
+            return (100.0 / MAX_FREQUENCY) * self.motorLeftCurrVelocity * - 1
+
+
     def setVelocityRight(self, newValue = 0.0):
         """
         Description: Sets the current velocity for the right wheels
@@ -139,6 +145,13 @@ class motor(Thread):
                     self.lock.release()
 
         return
+
+
+    def getCurrVelocityRight(self):
+        if(self.motorRightDirection is DrivingDirection.FORWARD.value):
+            return (100.0 / MAX_FREQUENCY) * self.motorRightCurrVelocity
+        else:
+            return (100.0 / MAX_FREQUENCY) * self.motorRightCurrVelocity * - 1
 
 
     def stopDriver(self):

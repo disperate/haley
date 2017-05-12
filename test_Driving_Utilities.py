@@ -19,10 +19,12 @@ try:
     sleep(2)
 
     utilities = drivingUtilities.DrivingUtilities(handler, motorDriver)
-    utilities.driveDistanceByTime(1700, 80.0)
-    utilities.driveDistanceByTime(1700, -80.0)
-    utilities.driveDistanceByTime(1700, 80.0)
-    utilities.driveDistanceByTime(1700, -80.0)
+    utilities.turn(90.0)
+
+    """utilities.driveDistanceByTime(1700, 80.0)
+utilities.driveDistanceByTime(1700, -80.0)
+utilities.driveDistanceByTime(1700, 80.0)
+utilities.driveDistanceByTime(1700, -80.0)"""
     #utilities.turn(-90.0)
     #utilities.driveDistanceByTime(1300, 80.0)
     #utilities.turn(-90.0)
