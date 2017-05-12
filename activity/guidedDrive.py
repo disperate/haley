@@ -26,8 +26,8 @@ class guidedDriveActivity(Thread):
 
     def run(self):
         while(self._running):
-            ist_dist = i2c.getDistanceLeftBack() - i2c.getDistanceRightBack()
-            ist_angle = atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack() - 0.5)) / 180)
+            ist_dist = self._i2c.getDistanceLeftBack() - self._i2c.getDistanceRightBack()
+            ist_angle = atan((self._i2c.getDistanceLeftFront() - (self._i2c.getDistanceLeftBack() - 0.5)) / 180)
             pid_dist.SetPoint = 0.0
             if pid_dist.update(ist_dist):
                 soll_angle = pid_dist.output
@@ -36,6 +36,6 @@ class guidedDriveActivity(Thread):
             if pid_angle.update(ist_angle):
                 DeltaVelocityLeft_proz = pid_angle.output
                 VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
-                motor.setVelocityLeft(config.guidedDriveVelocity)
+                _motorController.setVelocityLeft(config.guidedDriveVelocity)
 
             sleep(0.02)
