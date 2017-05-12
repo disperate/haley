@@ -83,7 +83,7 @@ class I2cHandler(Thread):
         self.prevYaw                = 0.0
         self.currPitch              = 0.0
         self.currRoll               = 0.0
-        self.currRelativeYaw = 0
+        self.currRelativeYaw        = 0.0
 
         self.dispStatesList = [0] * DISPLAY_MAX_STATES
         self.dispRomanNumber = 0
