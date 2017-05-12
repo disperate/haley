@@ -37,6 +37,6 @@ class guidedDriveActivity(Thread):
             if self.pid_angle.update(ist_angle):
                 DeltaVelocityLeft_proz = self.pid_angle.output
                 VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
-                _motorController.setVelocityLeft(config.guidedDriveVelocity)
-                _motorController.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
+                self._motorController.setVelocityLeft(config.guidedDriveVelocity)
+                self._motorController.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
             sleep(0.02)
