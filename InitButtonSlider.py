@@ -34,14 +34,30 @@ try:
         if (i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()):
             if (i2c.getDistanceLeftFront() > i2c.getDistanceRightFront()):
                 buttonpresser.left()
+                if (abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()) < 5):
+                    sleep(0.01)
+                    buttonpresser.stop()
+                    sleep(0.02)
                 print("shift left")
             else:
                 buttonpresser.right()
+                if (abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()) < 5):
+                    sleep(0.01)
+                    buttonpresser.stop()
+                    sleep(0.02)
                 print("shift_right")
         else:
             buttonpresser.stop()
-            print("stop")
-            moveButtonSlider = False
+            sumDiff = 0
+            print("Endckeck")
+            for i in range(0, 5):
+                sumDiff = abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront())
+                print("LeftFront:  " + str(i2c.getDistanceLeftFront()))
+                print("RightFront: " + str(i2c.getDistanceRightFront()))
+                sleep(0.1)
+            if sumDiff < 1:
+                print("stop")
+                moveButtonSlider = False
         sleep(0.01)
 
 
