@@ -15,12 +15,12 @@ try:
     i2c = i2cHandler.I2cHandler()
     i2c.start()
 
-    pid_dist = pid.PID(0.05, 0, 0)
+    pid_dist = pid.PID(0.001, 0, 0)
     pid_dist.setWindup(0.5)
     pid_dist.sample_time = 0.1
     soll_angle = 0
 
-    pid_angle = pid.PID(2, 0, 0)
+    pid_angle = pid.PID(1.5, 0, 0)
     pid_angle.setWindup(0.5)
     pid_angle.sample_time = 0.1
 
@@ -49,17 +49,17 @@ try:
         ist_dist = i2c.getDistanceLeftBack() - i2c.getDistanceRightBack()
         ist_angle = atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack()-0.5)) / 180)
         pid_dist.SetPoint = 0.0
-#        if pid_dist.update(ist_dist):
-#            soll_angle = pid_dist.output
-#            pid_angle.SetPoint = soll_angle
-#            regD_out_str = str(round(pid_dist.SetPoint, 3)) +"; " + str(round(ist_dist, 3)) + "; " +\
-#                           str(round(pid_dist.SetPoint-ist_dist, 3)) +"; "+ str(round(soll_angle, 1)) +"; ;"
+        if pid_dist.update(ist_dist):
+            soll_angle = pid_dist.output
+            pid_angle.SetPoint = soll_angle
+            regD_out_str = str(round(pid_dist.SetPoint, 3)) +"; " + str(round(ist_dist, 3)) + "; " +\
+                           str(round(pid_dist.SetPoint-ist_dist, 3)) +"; "+ str(round(soll_angle, 1)) +"; ;"
 
         if pid_angle.update(ist_angle):
             DeltaVelocityLeft_proz = pid_angle.output
             VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
-            #motor.setVelocityLeft(config.guidedDriveVelocity * VelocityLeft_proz)
-            #motor.setVelocityRight(config.guidedDriveVelocity)
+            #motor.setVelocityLeft(20)
+            #motor.setVelocityRight(20 * VelocityLeft_proz)
             motor.setVelocityLeft(config.guidedDriveVelocity * -DeltaVelocityLeft_proz)
             motor.setVelocityRight(config.guidedDriveVelocity * DeltaVelocityLeft_proz)
             regW_out_str = str(round(soll_angle, 3)) +" ; "+ str(round(ist_angle, 3)) +" ; "+\
