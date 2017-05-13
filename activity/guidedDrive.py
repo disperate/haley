@@ -27,16 +27,23 @@ class guidedDriveActivity(Thread):
 
     def run(self):
         while(self._running):
-            ist_dist = self._i2c.getDistanceLeftBack() - self._i2c.getDistanceRightBack()
-            ist_angle = atan((self._i2c.getDistanceLeftFront() - (self._i2c.getDistanceLeftBack() - 0.5)) / 180)
-            self.pid_dist.SetPoint = 0.0
-            if self.pid_dist.update(ist_dist):
-                self.soll_angle = self.pid_dist.output
-                self.pid_angle.SetPoint = self.soll_angle
-
-            if self.pid_angle.update(ist_angle):
-                DeltaVelocityLeft_proz = self.pid_angle.output
-                VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
+            if ((self._i2c.getDistanceLeftBack() > config.loseWallsDistanceThreshold) or
+                (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold) or
+                (self._i2c.getDistanceRightBack() > config.loseWallsDistanceThreshold) or
+                (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)    ):
                 self._motorController.setVelocityLeft(config.guidedDriveVelocity)
-                self._motorController.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
+                self._motorController.setVelocityRight(config.guidedDriveVelocity)
+            else:
+                ist_dist = self._i2c.getDistanceLeftBack() - self._i2c.getDistanceRightBack()
+                ist_angle = atan((self._i2c.getDistanceLeftFront() - (self._i2c.getDistanceLeftBack() - 0.5)) / 180)
+                self.pid_dist.SetPoint = 0.0
+                if self.pid_dist.update(ist_dist):
+                    self.soll_angle = self.pid_dist.output
+                    self.pid_angle.SetPoint = self.soll_angle
+
+                if self.pid_angle.update(ist_angle):
+                    DeltaVelocityLeft_proz = self.pid_angle.output
+                    VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
+                    self._motorController.setVelocityLeft(config.guidedDriveVelocity)
+                    self._motorController.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
             sleep(0.02)

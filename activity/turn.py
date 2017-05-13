@@ -20,7 +20,7 @@ class turnActivity(Thread):
         print("Drive 1 sec")
         self._motor.setVelocityRight(70)
         self._motor.setVelocityLeft(70)
-        sleep(0.7)
+        sleep(0.8)
 
         # 2. Turn haley 90°
         print("Turn 90")
