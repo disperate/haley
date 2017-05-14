@@ -2,4 +2,4 @@ transitions
 picamera
 pigpio
 sense-hat
-Enum
+enum34
