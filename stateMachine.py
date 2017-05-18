@@ -14,6 +14,7 @@ from activity import dedectWalls
 from activity import guidedDrive
 from activity import loseWalls
 from activity import turn
+from activity import buttonPress
 
 class Haley(object):
 
@@ -57,10 +58,10 @@ class Haley(object):
             trigger='wallsLost', source='guidedDrive', dest='turning', unless='hasTurned')
 
         self.machine.add_transition(
-            trigger='turnDone', source='turning', dest='blindDrive')
+            trigger='wallsLost', source='guidedDrive', dest='buttonDrive', conditions='hasTurned')
 
         self.machine.add_transition(
-            trigger='wallsLost', source='guidedDrive', dest='buttonDrive', conditions='hasTurned')
+            trigger='turnDone', source='turning', dest='blindDrive')
 
         self.machine.add_transition(
             trigger='buttonPressed', source='buttonDrive', dest='end')
@@ -121,6 +122,11 @@ class Haley(object):
     def initTurning(self):
         turnThread = turn.turnActivity(self, self.motorModul, self.i2c)
         turnThread.start()
+
+    def initButtonDrive(self):
+        buttonPresser = buttonPress.buttonPressActivity(self, self.motorModul, self.i2c)
+        buttonPresser.start()
+
 
     def hasTurned(self):
         return self.turned

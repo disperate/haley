@@ -44,16 +44,17 @@ class camera(Thread):
 
     def run(self):
         while (self._running):
+            image = np.empty((480 * 640 * 3,), dtype=np.uint8)
+            self._camera.capture(image, 'bgr')
+            image = image.reshape((480, 640, 3))
+
             if self._dedectGreenLight:
-                image = np.empty((480 * 640 * 3,), dtype=np.uint8)
-                self._camera.capture(image, 'bgr')
-                image = image.reshape((480, 640, 3))
                 print("looking for green light...")
                 self._dedectAmpel(image)
 
             if self._dedectRomanNumber:
                 print("looking for roman nummber")
-            time.sleep(0.1)
+            time.sleep(0.01)
 
     def _green(self, img):
         lower_red = np.array([greenValue - sensitivity, 100, 50])
