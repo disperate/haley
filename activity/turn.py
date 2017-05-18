@@ -18,9 +18,9 @@ class turnActivity(Thread):
 
         # 1. Drive straight ahead for a specific time
         print("Drive 1 sec")
-        self._motor.setVelocityRight(70)
-        self._motor.setVelocityLeft(70)
-        sleep(0.7)
+        self._motor.setVelocityRight(80)
+        self._motor.setVelocityLeft(80)
+        sleep(0.4)
 
         # 2. Turn haley 90°
         print("Turn 90")
@@ -61,8 +61,8 @@ class turnActivity(Thread):
 
         # 6. Drive straight ahead until sensors on both sides get ze right dimension
 
-        self._motor.setVelocityRight(60)
-        self._motor.setVelocityLeft(60)
+        self._motor.setVelocityRight(70)
+        self._motor.setVelocityLeft(70)
 
         self._fsm.turned = True
         self._fsm.turnDone()

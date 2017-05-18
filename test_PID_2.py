@@ -15,7 +15,7 @@ try:
     i2c = i2cHandler.I2cHandler()
     i2c.start()
 
-    pid_dist = pid.PID(0.001, 0, 0)
+    pid_dist = pid.PID(0.002, 0, 0)
     pid_dist.setWindup(0.5)
     pid_dist.sample_time = 0.1
     soll_angle = 0
@@ -25,8 +25,7 @@ try:
     pid_angle.sample_time = 0.1
 
     print("Test: 1.0 ")
-    print("Time; SollW; IstW; ErrW; OutW;")
-    #print("Time; SollD; IstD; ErrD; OutD; ; SollW; IstW; ErrW; OutW;")
+    print("Time; SollD; IstD; ErrD; OutD; ; SollW; IstW; ErrW; OutW;")
 
     regD_out_str = ""
     regW_out_str = ""
@@ -58,10 +57,10 @@ try:
         if pid_angle.update(ist_angle):
             DeltaVelocityLeft_proz = pid_angle.output
             VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
-            #motor.setVelocityLeft(20)
-            #motor.setVelocityRight(20 * VelocityLeft_proz)
-            motor.setVelocityLeft(config.guidedDriveVelocity * -DeltaVelocityLeft_proz)
-            motor.setVelocityRight(config.guidedDriveVelocity * DeltaVelocityLeft_proz)
+            motor.setVelocityLeft(config.guidedDriveVelocity)
+            motor.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
+            #motor.setVelocityLeft(config.guidedDriveVelocity * -DeltaVelocityLeft_proz)
+            #motor.setVelocityRight(config.guidedDriveVelocity * DeltaVelocityLeft_proz)
             regW_out_str = str(round(soll_angle, 3)) +" ; "+ str(round(ist_angle, 3)) +" ; "+\
                            str(round(soll_angle-ist_angle, 3)) +" ; "+\
                            str(round(DeltaVelocityLeft_proz,5))

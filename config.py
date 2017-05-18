@@ -5,7 +5,7 @@ BUTTON = 4
 DCMOT_IN1 = 19
 DCMOT_IN2 = 18
 
-greenlightTimeoutInSeconds = 2
+greenlightTimeoutInSeconds = 60
 
 dedectWallsDistanceThreshold = 250
 loseWallsDistanceThreshold = 200
