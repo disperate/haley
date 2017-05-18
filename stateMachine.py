@@ -114,11 +114,12 @@ class Haley(object):
         self.guidedDriveActivity = guidedDrive.guidedDriveActivity(self, self.motorModul, self.i2c)
         self.guidedDriveActivity.start()
         if self.hasTurned():
-            wallsLostThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
-            wallsLostThread.start()
-        else:
             wallsLostThread = Thread(target=loseWallsOneSide.loseWallsActivity, args=(self, self.i2c, self.direction))
             wallsLostThread.start()
+        else:
+            wallsLostThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
+            wallsLostThread.start()
+
 
     def exitGuidedDrive(self):
         self.guidedDriveActivity.terminate()
