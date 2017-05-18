@@ -19,7 +19,7 @@ class buttonPressActivity(Thread):
         self._fork = forkHandler.Fork(self._i2c)
 
     def run(self):
-        # Drive straight ahead until a distance of 30mm in front of the buttons
+        # Drive straight ahead until a distance of 40mm in front of the buttons
         self._util.approachWallAndStop(40)
 
         # Positioning fork
