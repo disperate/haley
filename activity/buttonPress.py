@@ -20,7 +20,7 @@ class buttonPressActivity(Thread):
 
     def run(self):
         # Drive straight ahead until a distance of 30mm in front of the buttons
-        self._util.approachWallAndStop(30)
+        self._util.approachWallAndStop(40)
 
         # Positioning fork
         self._fork.setPositionForNumber(5, self._direction)
