@@ -35,3 +35,4 @@ class buttonPressActivity(Thread):
         self._fork.setPositionForNumber(0, self._direction)
 
         # Continue...
+        self._fsm.buttonPressed()
