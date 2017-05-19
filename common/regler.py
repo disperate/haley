@@ -59,7 +59,7 @@ class PID:
         self.pid_angle.setWindup(0.5)
         self.pid_angle.sample_time = 0.1
 
-        self.velocityUtility = velocityUtilities.velocityUtilities
+        self.velocityUtility = velocityUtilities.velocityUtilities(i2c)
 
         self.mode = mode
 

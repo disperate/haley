@@ -26,7 +26,7 @@ try:
     forkHandler = forkHandler.Fork(handler)
     #forkHandler.setForkPositionByManual()
 
-    """
+
     sleep(1)
     utilities.driveByTime(1500,-50)
     # Startgeschwindigkeit
@@ -44,8 +44,7 @@ try:
     # Kurzes Rücksetzen
     utilities.driveByTime(1000, -40)
     forkHandler.setPositionForNumber(0, direction.LEFT)
-    utilities.turn(360)
-"""
+
     # Fertig
 
     forkHandler.setForkPositionByManual()

@@ -30,8 +30,8 @@ class buttonpresser(Thread):
         self._running = False
 
     def run(self):
-
-        while self._running:
-            self._pi.write(config.DCMOT_IN1, self._goLeft)
-            self._pi.write(config.DCMOT_IN2, self._goRight)
-            time.sleep(0.01)
+        print("asdf")
+        #while self._running:
+        #    self._pi.write(config.DCMOT_IN1, self._goLeft)
+        #    self._pi.write(config.DCMOT_IN2, self._goRight)
+        #    time.sleep(0.01)
