@@ -11,8 +11,6 @@ class blindDriveActivity(Thread):
         self._motorController = motor
 
     def terminate(self):
-        self._motorController.setVelocityLeft(0.0)
-        self._motorController.setVelocityRight(0.0)
         self._running = False
 
     def run(self):
