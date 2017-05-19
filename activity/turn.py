@@ -35,14 +35,12 @@ class turnActivity(Thread):
         self._motor.setVelocityLeft(80)
 
         while self._i2c.getDistanceFront() > 150:
-            print("Driving fast: " + str(self._i2c.getDistanceFront()))
             sleep(0.001)
 
         self._motor.setVelocityRight(30)
         self._motor.setVelocityLeft(30)
 
         while self._i2c.getDistanceFront() > 80:
-            print("Wall is ahead: " + str(self._i2c.getDistanceFront()))
             sleep(0.001)
 
         self._motor.setVelocityRight(0)
