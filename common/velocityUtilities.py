@@ -1,5 +1,6 @@
 import config
 
+
 class velocityUtilities():
     def __init__(self, i2cHandler):
         self.i2cHandler = i2cHandler
@@ -12,19 +13,19 @@ class velocityUtilities():
     def getVelocity(self):
         roll = int(self.i2cHandler.getCurrRoll())
 
-        if(roll > 180):
+        if (roll > 180):
             if (roll < 340):
                 return config.guidedDriveVelocity * 0.6
             if (roll < 345):
                 return config.guidedDriveVelocity * 0.7
-            if(roll < 350):
+            if (roll < 350):
                 return config.guidedDriveVelocity * 0.8
         else:
-            if(roll > 20):
+            if (roll > 20):
                 return config.guidedDriveVelocity * 0.6
-            if(roll > 15):
+            if (roll > 15):
                 return config.guidedDriveVelocity * 0.7
-            if(roll > 10):
+            if (roll > 10):
                 return config.guidedDriveVelocity * 0.8
 
         return config.guidedDriveVelocity

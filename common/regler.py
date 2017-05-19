@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Autor:        Urs Stoeckli
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Class:        Regler
 # Description:  Regler um Haley in der Mitte der Spur zu halten
 #
@@ -27,12 +27,12 @@
 #
 # _i2c:         Referenz zu den I2C-Distanzsensoren
 #
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 #
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 #
 #
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 
 from math import atan
@@ -92,17 +92,17 @@ class PID:
     def checkDistValues(self):
         if self.mode is reglerMode.ReglerMode.TO_RIGHT:
             if ((self._i2c.getDistanceRightBack() > config.loseWallsDistanceThreshold) or
-                (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)):
+                    (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)):
                 return False
         elif self.mode is reglerMode.ReglerMode.TO_LEFT:
             if ((self._i2c.getDistanceLeftBack() > config.loseWallsDistanceThreshold) or
-                (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold)):
+                    (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold)):
                 return False
         else:
             if ((self._i2c.getDistanceLeftBack() > config.loseWallsDistanceThreshold) or
-                (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold) or
-                (self._i2c.getDistanceRightBack() > config.loseWallsDistanceThreshold) or
-                (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)):
+                    (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold) or
+                    (self._i2c.getDistanceRightBack() > config.loseWallsDistanceThreshold) or
+                    (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)):
                 return False
         return True
 
