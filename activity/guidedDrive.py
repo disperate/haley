@@ -1,10 +1,7 @@
 from threading import Thread
-from math import atan
 from time import sleep
-import config
-from common import pid
 from common import regler
-from haleyenum.reglerMode import reglerMode
+from haleyenum.reglerMode import ReglerMode
 
 
 class guidedDriveActivity(Thread):
@@ -14,7 +11,7 @@ class guidedDriveActivity(Thread):
         self._running = True
         self._motorController = motor
         self._i2c = i2c
-        self._regler(_motorController, _i2c, reglerMode.TO_MIDDLE)
+        self._regler = regler.PID(self._motorController, self._i2c, ReglerMode.TO_MIDDLE)
 
         #self.pid_dist = pid.PID(0.002, 0, 0)
         #self.pid_dist.setWindup(0.5)

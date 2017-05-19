@@ -39,7 +39,7 @@ from math import atan
 from time import sleep
 import config
 from common import pid
-from haleyenum.reglerMode import reglerMode
+from haleyenum import reglerMode
 
 
 class PID:
@@ -71,27 +71,27 @@ class PID:
 
     # Distanzfehler berechnen (je nach gewähltem Mode)
     def calcDist(self):
-        if self.mode is reglerMode.TO_RIGHT:
+        if self.mode is reglerMode.ReglerMode.TO_RIGHT:
             return 85 - self._i2c.getDistanceRightBack()
-        elif self.mode is reglerMode.TO_LEFT:
+        elif self.mode is reglerMode.ReglerMode.TO_LEFT:
             return self._i2c.getDistanceLeftBack() - 85
         else:
             return self._i2c.getDistanceLeftBack() - self._i2c.getDistanceRightBack()
 
     # Ist-Winkel berechnen (je nach gewähltem Mode zur linken oder rechten Bande)
     def calcAngle(self):
-        if self.mode is reglerMode.TO_RIGHT:
-            -atan((self._i2c.getDistanceRightFront() - (self._i2c.getDistanceRightBack() - 0.5)) / 180)
+        if self.mode is reglerMode.ReglerMode.TO_RIGHT:
+            return -atan((self._i2c.getDistanceRightFront() - (self._i2c.getDistanceRightBack() - 0.5)) / 180)
         else:
-            atan((self._i2c.getDistanceLeftFront() - (self._i2c.getDistanceLeftBack() - 0.5)) / 180)
+            return atan((self._i2c.getDistanceLeftFront() - (self._i2c.getDistanceLeftBack() - 0.5)) / 180)
 
     # Prüft ob ein Wert der verwendeten Sensoren zu hoch ist (abhängig vom Mode)
     def checkDistValues(self):
-        if self.mode is reglerMode.TO_RIGHT:
+        if self.mode is reglerMode.ReglerMode.TO_RIGHT:
             if ((self._i2c.getDistanceRightBack() > config.loseWallsDistanceThreshold) or
                 (self._i2c.getDistanceRightFront() > config.loseWallsDistanceThreshold)):
                 return False
-        elif self.mode is reglerMode.TO_LEFT:
+        elif self.mode is reglerMode.ReglerMode.TO_LEFT:
             if ((self._i2c.getDistanceLeftBack() > config.loseWallsDistanceThreshold) or
                 (self._i2c.getDistanceLeftFront() > config.loseWallsDistanceThreshold)):
                 return False
@@ -105,9 +105,9 @@ class PID:
 
     # Regler ausführen
     def update(self):
-        if checkDistValues():
-            ist_dist = calcDist()
-            ist_angle = calcAngle()
+        if self.checkDistValues():
+            ist_dist = self.calcDist()
+            ist_angle = self.calcAngle()
             self.pid_dist.SetPoint = 0.0
             if self.pid_dist.update(ist_dist):
                 self.soll_angle = self.pid_dist.output
