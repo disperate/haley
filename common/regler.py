@@ -40,6 +40,7 @@ from time import sleep
 import config
 from common import pid
 from haleyenum import reglerMode
+from common import velocityUtilities
 
 
 class PID:
@@ -57,6 +58,8 @@ class PID:
         self.pid_angle = pid.PID(1.5, 0, 0)
         self.pid_angle.setWindup(0.5)
         self.pid_angle.sample_time = 0.1
+
+        self.velocityUtility = velocityUtilities.velocityUtilities
 
         self.mode = mode
 
@@ -105,6 +108,8 @@ class PID:
 
     # Regler ausführen
     def update(self):
+        velocity = self.velocityUtility.getVelocity()
+
         if self.checkDistValues():
             ist_dist = self.calcDist()
             ist_angle = self.calcAngle()
@@ -116,8 +121,8 @@ class PID:
             if self.pid_angle.update(ist_angle):
                 DeltaVelocityLeft_proz = self.pid_angle.output
                 VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
-                self._motorController.setVelocityLeft(config.guidedDriveVelocity)
-                self._motorController.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
+                self._motorController.setVelocityLeft(velocity)
+                self._motorController.setVelocityRight(velocity * VelocityLeft_proz)
         else:
-            self._motorController.setVelocityLeft(config.guidedDriveVelocity)
-            self._motorController.setVelocityRight(config.guidedDriveVelocity)
+            self._motorController.setVelocityLeft(velocity)
+            self._motorController.setVelocityRight(velocity)
