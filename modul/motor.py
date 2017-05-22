@@ -263,6 +263,8 @@ class motor(Thread):
 
                     self.threadRefreshDrive = False
             except Exception as err:
+                self._stopDriver()
+                self.threadIsRunning = False
                 self._printDebug("Thread: Exception --> " + str(err))
             finally:
                 self.lock.release()
