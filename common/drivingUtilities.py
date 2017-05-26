@@ -124,6 +124,26 @@ class DrivingUtilities():
         self.motorDriver.stopDriver()
 
 
+    def approachWallAndStopNew(self, relativeDistanceInMillimeter):
+        realDistance = relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET
+        currDiff = self.i2cHandler.getDistanceFront() - realDistance
+        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
+        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
+
+        for x in range(1, 8):
+            self._printDebug("Current velocity: {}".format(self.motorDriver.getCurrVelocityLeft()))
+            while (True):
+                currDiff = self.i2cHandler.getDistanceFront() - realDistance
+                if (currDiff < int(100 / x)):
+                    break
+                sleep(0.05)
+
+            self.motorDriver.setVelocityLeft(initialVelocityLeft / (2 * x))
+            self.motorDriver.setVelocityRight(initialVelocityRight / (2 * x))
+
+        self.motorDriver.stopDriver()
+
+
     def driveByTime(self, timeInMilliseconds, velocity):
         timeInRequestedVelocity = timeInMilliseconds - (((SINUS_PI_HALF - SINUS_PI_OFFSET) / SINUS_TICK_SIZE) * SINUS_TICK_SLEEP_MS * 2)
 
