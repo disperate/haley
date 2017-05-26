@@ -85,7 +85,7 @@ class Haley(object):
         self.i2c = i2cHandler.I2cHandler()
         self.i2c.start()
 
-        i = init.initActivity(self)
+        i = init.initActivity(self, i2c, buttonpresser)
 
     def initReady(self):
         t = Thread(target=ready.readyActivity, args = (self,))

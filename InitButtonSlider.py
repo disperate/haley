@@ -13,25 +13,11 @@ try:
     i2c = i2cHandler.I2cHandler()
     i2c.start()
 
-    cnt = 1
-    while(True):
-        print("\033c")
-        print("Wait for Distance-Data (Try " + str(cnt) + "): " + \
-             str(i2c.getDistanceLeftFront()) +", "+ str(i2c.getDistanceRightFront()) +", "+\
-             str(i2c.getDistanceLeftBack()) +", "+ str(i2c.getDistanceLeftBack()))
-        if (i2c.getDistanceLeftFront() > 0):
-            if (i2c.getDistanceLeftBack() > 0):
-                if (i2c.getDistanceRightFront() > 0):
-                    if (i2c.getDistanceRightBack() > 0):
-                        break;
-        cnt = cnt + 1
-        sleep(0.1)
-
     moveButtonSlider = True
-    print("Start init Buttonslider")
+    # print("Start init Buttonslider")
     while moveButtonSlider:
-        print("LeftFront:  " + str(i2c.getDistanceLeftFront()))
-        print("RightFront: " + str(i2c.getDistanceRightFront()))
+        # print("LeftFront:  " + str(i2c.getDistanceLeftFront()))
+        # print("RightFront: " + str(i2c.getDistanceRightFront()))
         if (i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()):
             if (i2c.getDistanceLeftFront() > i2c.getDistanceRightFront()):
                 buttonpresser.left()
@@ -50,14 +36,14 @@ try:
         else:
             buttonpresser.stop()
             sumDiff = 0
-            print("Endckeck")
+            # print("Endckeck")
             for i in range(0, 5):
-                sumDiff = abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront())
+                sumDiff += abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront())
                 print("LeftFront:  " + str(i2c.getDistanceLeftFront()))
                 print("RightFront: " + str(i2c.getDistanceRightFront()))
                 sleep(0.1)
-            if sumDiff < 1:
-                print("stop")
+            if sumDiff < 3:
+                #print("stop")
                 moveButtonSlider = False
         sleep(0.01)
 
