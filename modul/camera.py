@@ -31,6 +31,9 @@ class camera(Thread):
     def startRomanNumberDedection(self):
         self._dedectRomanNumber = True
 
+    def stopRomanNumberDedection(self):
+        self._dedectRomanNumber = False
+
     def getRomanNumber(self):
         """
         Description: Returns the found Roman Number or None if its not found yet.
@@ -80,7 +83,6 @@ class camera(Thread):
         return cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     def _dedectCircles(self, img):
-
         res = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         circles = cv2.HoughCircles(res, cv2.HOUGH_GRADIENT, 1, 20, param1=10, param2=10, minRadius=3, maxRadius=20)
         if circles is not None:

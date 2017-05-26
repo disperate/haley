@@ -6,7 +6,7 @@ class PrenTeam6():
     haley = stateMachine.Haley("Haley")
     haley.startSetup()
     while True:
-        time.sleep(0.5)
+        time.sleep(1)
         print('Current state: ' + haley.state)
         if haley.state == 'end':
             exit()
