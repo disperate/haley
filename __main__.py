@@ -9,7 +9,7 @@ class PrenTeam6():
         time.sleep(0.5)
         print('Current state: ' + haley.state)
         if haley.state == 'end':
-            break
+            exit()
 
 if __name__ == "__main__":
     app = PrenTeam6()

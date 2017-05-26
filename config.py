@@ -10,5 +10,5 @@ greenlightTimeoutInSeconds = 10
 dedectWallsDistanceThreshold = 250
 loseWallsDistanceThreshold = 200
 
-blindDriveVelocity = 70
-guidedDriveVelocity = 70
+blindDriveVelocity = 80
+guidedDriveVelocity = 90

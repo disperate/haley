@@ -3,7 +3,6 @@ from time import sleep
 from common import drivingUtilities
 from haleyenum import direction
 
-THREAD_SLEEP_MS = 100
 
 class turnActivity(Thread):
     def __init__(self, fsm, motorController, i2cHandler):
@@ -35,19 +34,16 @@ class turnActivity(Thread):
         self._motor.setVelocityLeft(80)
 
         while self._i2c.getDistanceFront() > 150:
-            print("Driving fast: " + str(self._i2c.getDistanceFront()))
             sleep(0.001)
 
         self._motor.setVelocityRight(30)
         self._motor.setVelocityLeft(30)
 
         while self._i2c.getDistanceFront() > 80:
-            print("Wall is ahead: " + str(self._i2c.getDistanceFront()))
             sleep(0.001)
 
         self._motor.setVelocityRight(0)
         self._motor.setVelocityLeft(0)
-
 
         # 4. Turn haley 90° again
         print("Turn 90")
