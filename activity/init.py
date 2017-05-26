@@ -20,26 +20,32 @@
 
 # Imports
 import time
-from threading import Thread
 from time import sleep
 
+import pigpio
+
+import config
+
 # Constants
-MAX_TIME = 5.0
-MIN_TIME = 4.0
+MAX_TIME = 4.0
+MIN_TIME = 3.0
+
 
 #
-class initActivity(Object):
+class initActivity(object):
     # *** Konstruktor ***
     def __init__(self, fsm, i2c, buttonpresser):
         super().__init__()
         self._i2c = i2c
         self._buttonpresser = buttonpresser
+        self._pi = pigpio.pi()
 
-        if self.waitForButton() > 4.0:  # Schalter auf Konfig und Taste zwischen >4s betätigt
-            initFork()                  # ja, Tastendrücker initialisieren
-            getDistOffset()             # Offsets der Sensoren ermitteln
+        if self.waitForButton() > MIN_TIME:  # Schalter auf Konfig und Taste zwischen >4s betätigt
+            print("Calibrating...")
+            self.initFork()  # ja, Tastendrücker initialisieren
+            self.getDistOffset()  # Offsets der Sensoren ermitteln
 
-        fsm.setupComplete()             # Setup beenden
+        fsm.setupComplete()  # Setup beenden
 
     # Wartet solange Kippschalter auf Konfig (Mittelstellung) bis die Taste zwischen MIN_TIME und MAX_TIME betätigt wird.
     # Vorgang wird beendet wenn der Kippschalter aus der Mittelstellung geht, die Taste zwischen MIN_TIME und MAX_TIME
@@ -49,17 +55,18 @@ class initActivity(Object):
     #           Betätigungsdauer (MIN_TIME...MAX_TIME) falls Kippschalter auf Mittelstellung
     def waitForButton(self):
         pressedTime = 0
-        buttonLast = False;
+        buttonLast = False
+        startTime = time.time()
         while self._pi.read(config.SWITCH1) and self._pi.read(config.SWITCH2) and (pressedTime < MIN_TIME):
             buttonNew = not self._pi.read(config.BUTTON)
-            if buttonNew and not buttonLast:
+            if not buttonNew:
                 startTime = time.time()
             if not buttonNew and buttonLast:
-                pressedTime = time.time() - startTime;
+                pressedTime = time.time() - startTime
             sleep(0.05)
             if (time.time() - startTime) > MAX_TIME:
                 pressedTime = time.time() - startTime
-        if self._pi.read(config.SWITCH1) == self._pi.read(config.SWITCH2):
+        if self._pi.read(config.SWITCH1) != self._pi.read(config.SWITCH2):
             return 0
         return pressedTime
 
@@ -69,42 +76,47 @@ class initActivity(Object):
     def initFork(self):
         moveButtonSlider = True
         while moveButtonSlider:
-            if (_i2c.getDistanceLeftFront() - _i2c.getDistanceRightFront()):
-                if (_i2c.getDistanceLeftFront() > _i2c.getDistanceRightFront()):
-                    _buttonpresser.left()
-                    if (abs(_i2c.getDistanceLeftFront() - _i2c.getDistanceRightFront()) < 5):
+
+            if (self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()):
+                if (self._i2c.getDistanceLeftFront() > self._i2c.getDistanceRightFront()):
+                    self._buttonpresser.left()
+                    if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
                         sleep(0.01)
-                        _buttonpresser.stop()
+                        self._buttonpresser.stop()
                         sleep(0.02)
                 else:
-                    _buttonpresser.right()
-                    if (abs(_i2c.getDistanceLeftFront() - _i2c.getDistanceRightFront()) < 5):
+                    self._buttonpresser.right()
+                    if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
                         sleep(0.01)
-                        _buttonpresser.stop()
+                        self._buttonpresser.stop()
                         sleep(0.02)
             else:
-                _buttonpresser.stop()
+                self._buttonpresser.stop()
                 sumDiff = 0
                 for i in range(0, 5):
-                    sumDiff += abs(_i2c.getDistanceLeftFront() - _i2c.getDistanceRightFront())
+                    sumDiff += abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront())
                     sleep(0.1)
-                if sumDiff < 3:
+                if sumDiff < 6:
+                    print("LEFTFRONT: " + str(self._i2c.getDistanceLeftFront()))
+                    print("RIGHTFRONT: " + str(self._i2c.getDistanceRightFront()))
                     moveButtonSlider = False
             sleep(0.01)
 
-
     def getDistOffset(self):
-        sumLeftBack = 0
+        sumRightFront = 0
         sumLeftFront = 0
         sumRightBack = 0
         sumLeftBack = 0
         for i in range(0, 7):
-            sumLeftBack   += _i2c.getDistanceLeftBack()
-            sumLeftFront  += _i2c.getDistanceLeftFront()
-            sumRightBack  += _i2c.getDistanceRightBack()
-            sumRightFront += _i2c.getDistanceRightFront()
+            sumLeftBack += self._i2c.getDistanceLeftBack()
+            sumLeftFront += self._i2c.getDistanceLeftFront()
+            sumRightBack += self._i2c.getDistanceRightBack()
+            sumRightFront += self._i2c.getDistanceRightFront()
             sleep(0.1)
-        OffsetLeftFront  = SumLeftFront/8  - 40
-        OffsetLeftBack   = SumLeftBack/8   - 40
-        OffsetRightFront = SumRightFront/8 - 40
-        OffsetRightBack  = SumRightBack/8  - 40
+
+        #TODO replace 40 with messured offset
+        #TODO save offsets to i2c Modul
+        offsetLeftFront = sumLeftFront / 8 - 40
+        offsetLeftBack = sumLeftBack / 8 - 40
+        offsetRightFront = sumRightFront / 8 - 40
+        offsetRightBack = sumRightBack / 8 - 40
