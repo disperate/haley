@@ -32,7 +32,7 @@ class SensorItem():
         self._shutDownPin = shutDownPin
         self._address = address
         self._sensor = None
-        self.initCounter = 0
+        self._initCounter = 0
         self._sensorIsRunning = False
         self._timingBudget = 100
         self._preInitSensor()
@@ -52,10 +52,10 @@ class SensorItem():
     def startRanging(self):
         self._printDebug("-------------------------------")
         self._printDebug("Start Ranging...")
-        self.initCounter = self.initCounter + 1
+        self._initCounter = self._initCounter + 1
         self.resetSensor()
         self._pigpio.write(self._shutDownPin, 1)
-        self._printDebug("{}. try to activate sensor".format(self.initCounter))
+        self._printDebug("{}. try to activate sensor".format(self._initCounter))
         self._sensor.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
         self._timingBudget = self._sensor.get_timing()
 
@@ -85,6 +85,9 @@ class SensorItem():
         else:
             return self._sensor.get_distance()
 
+
+    def getInitCounter(self):
+        return self._initCounter
 
     def isRunning(self):
         return self._sensorIsRunning
