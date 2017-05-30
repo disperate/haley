@@ -86,7 +86,7 @@ class DistanceSensorAdapter():
 
             for x in range(0,5):
                 if(self._sensors[x] is not None):
-                    while ((self._sensors[x].isRunning() is False) and (self._sensors[x].initCounter < 5)):
+                    while ((self._sensors[x].isRunning() is False) and (self._sensors[x].getInitCounter() < 5)):
                         self._sensors[x].startRanging()
 
             self._printDebug("...done!")
