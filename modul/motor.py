@@ -32,6 +32,7 @@ from threading import Thread
 from threading import RLock
 from haleyenum.drivingDirection import DrivingDirection
 from time import sleep
+from datetime import datetime
 
 # Constants
 BCM_PIN_NR_PWM_LEFT = 12
@@ -45,6 +46,8 @@ MIN_FREQUENCY = 0
 MAX_FREQUENCY = 700
 THREAD_SLEEP_MS = 10
 
+LOG_FILENAME = "_Log_Motor.csv"
+
 
 class motor(Thread):
     # Konstruktor
@@ -52,26 +55,29 @@ class motor(Thread):
     def __init__(self):
         # Threading stuff
         Thread.__init__(self)
-        self.lock = RLock()
+        self._lock = RLock()
 
         # Protected field by lock
-        self.motorIsEnabled = False
-        self.motorLeftDirection = DrivingDirection.FORWARD.value
-        self.motorLeftCurrVelocity = 0
-        self.motorRightDirection = DrivingDirection.FORWARD.value
-        self.motorRightCurrVelocity = 0
+        self._motorIsEnabled = False
+        self._motorLeftDirection = DrivingDirection.FORWARD.value
+        self._motorLeftCurrVelocity = 0
+        self._motorRightDirection = DrivingDirection.FORWARD.value
+        self._motorRightCurrVelocity = 0
 
-        self.threadIsRunning = False
-        self.threadRequestStop = False
-        self.threadRefreshDrive = False
+        self._threadIsRunning = False
+        self._threadRequestStop = False
+        self._threadRefreshDrive = False
+        self._threadWriteLog = False
 
-        self.pi = None
-        self.initMotor()
+        self._pi = None
+        self._initMotor()
+
+        self._listVelocityMeasurement = list()
 
 
     # Funktions
     # --------------------------------------------------------------------------
-    def initMotor(self):
+    def _initMotor(self):
         """
         Description: Initializes motor controller
         Returns:     Boolean
@@ -79,10 +85,10 @@ class motor(Thread):
         try:
             self._printDebug("Init...")
 
-            if(self.pi is None):
-                self.pi = pigpio.pi()
+            if(self._pi is None):
+                self._pi = pigpio.pi()
 
-            self.pi.write(BCM_PIN_NR_ENABLE, 1)
+            self._pi.write(BCM_PIN_NR_ENABLE, 1)
 
             self._printDebug("...done!")
             return True
@@ -104,23 +110,16 @@ class motor(Thread):
         """
         if(newValue is not None):
             if((-100.0 <= newValue) and (newValue <= 100.0)):
-
-                self.lock.acquire()
-                try:
-                    self._setVelocityLeft(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
-                except Exception as err:
-                    self._printDebug("setVelocityLeft(): Exception --> " + str(err))
-                finally:
-                    self.lock.release()
+                self._setVelocityLeft(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
 
         return
 
 
     def getCurrVelocityLeft(self):
-        if(self.motorLeftDirection is DrivingDirection.FORWARD.value):
-            return (100.0 / MAX_FREQUENCY) * self.motorLeftCurrVelocity
+        if(self._motorLeftDirection is DrivingDirection.FORWARD.value):
+            return (100.0 / MAX_FREQUENCY) * self._motorLeftCurrVelocity
         else:
-            return (100.0 / MAX_FREQUENCY) * self.motorLeftCurrVelocity * - 1
+            return (100.0 / MAX_FREQUENCY) * self._motorLeftCurrVelocity * - 1
 
 
     def setVelocityRight(self, newValue = 0.0):
@@ -136,47 +135,35 @@ class motor(Thread):
         """
         if (newValue is not None):
             if ((-100.0 <= newValue) and (newValue <= 100.0)):
-                self.lock.acquire()
-                try:
-                    self._setVelocityRight(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
-                except Exception as err:
-                    self._printDebug("setVelocityRight(): Exception --> " + str(err))
-                finally:
-                    self.lock.release()
+                self._setVelocityRight(int(round(((MAX_FREQUENCY / 100.0) * newValue), 0)))
 
         return
 
 
     def getCurrVelocityRight(self):
-        if(self.motorRightDirection is DrivingDirection.FORWARD.value):
-            return (100.0 / MAX_FREQUENCY) * self.motorRightCurrVelocity
+        if(self._motorRightDirection is DrivingDirection.FORWARD.value):
+            return (100.0 / MAX_FREQUENCY) * self._motorRightCurrVelocity
         else:
-            return (100.0 / MAX_FREQUENCY) * self.motorRightCurrVelocity * - 1
+            return (100.0 / MAX_FREQUENCY) * self._motorRightCurrVelocity * - 1
 
 
-    def stopDriver(self):
+    def stop(self):
         """
         Description: Stops the stepping motors.
         """
-        self.lock.acquire()
-        try:
-            self._stopDriver()
-        except:
-            pass
-        finally:
-            self.lock.release()
+        self._stopMotor()
 
         return
 
 
-    def _stopDriver(self):
+    def _stopMotor(self):
         """
         Description: This function is only for the class itself!
         """
         self._setVelocityLeft(0)
         self._setVelocityRight(0)
-        self.pi.write(BCM_PIN_NR_ENABLE, 1)
-        self.motorIsEnabled = False
+        self._pi.write(BCM_PIN_NR_ENABLE, 1)
+        self._motorIsEnabled = False
 
         return
 
@@ -186,18 +173,18 @@ class motor(Thread):
         Description: This function is only for the class itself!
         Args:        1. currVelocity as Integer
         """
-        self.motorLeftCurrVelocity = abs(currVelocity)
+        self._motorLeftCurrVelocity = abs(currVelocity)
 
         if (currVelocity < 0):
-            self.motorLeftDirection = DrivingDirection.BACKWARD.value
+            self._motorLeftDirection = DrivingDirection.BACKWARD.value
         else:
-            self.motorLeftDirection = DrivingDirection.FORWARD.value
+            self._motorLeftDirection = DrivingDirection.FORWARD.value
 
-        if(self.motorIsEnabled is not True):
-            self.pi.write(BCM_PIN_NR_ENABLE, 0)
-            self.motorIsEnabled = True
+        if(self._motorIsEnabled is not True):
+            self._pi.write(BCM_PIN_NR_ENABLE, 0)
+            self._motorIsEnabled = True
 
-        self.threadRefreshDrive = True
+        self._threadRefreshDrive = True
 
         return
 
@@ -207,18 +194,18 @@ class motor(Thread):
         Description: This function is only for the class itself!
         Args:        1. currVelocity as Integer
         """
-        self.motorRightCurrVelocity = abs(currVelocity)
+        self._motorRightCurrVelocity = abs(currVelocity)
 
         if (currVelocity < 0):
-            self.motorRightDirection = DrivingDirection.BACKWARD.value
+            self._motorRightDirection = DrivingDirection.BACKWARD.value
         else:
-            self.motorRightDirection = DrivingDirection.FORWARD.value
+            self._motorRightDirection = DrivingDirection.FORWARD.value
 
-        if(self.motorIsEnabled is not True):
-            self.pi.write(BCM_PIN_NR_ENABLE, 0)
-            self.motorIsEnabled = True
+        if(self._motorIsEnabled is not True):
+            self._pi.write(BCM_PIN_NR_ENABLE, 0)
+            self._motorIsEnabled = True
 
-        self.threadRefreshDrive = True
+        self._threadRefreshDrive = True
 
         return
 
@@ -228,46 +215,76 @@ class motor(Thread):
         Description: Stops running thread. Threads stops after
                      a complete while loop.
         """
-        self.lock.acquire()
-        try:
-            self._stopDriver()
-            self.threadRequestStop = True
-        except:
-            pass
-        finally:
-            self.lock.release()
+        self._stopMotor()
+        self._threadRequestStop = True
 
         return
+
+
+    def startLogging(self):
+        self._listVelocityMeasurement.clear()
+        self._listVelocityMeasurement.append("Motor-Driver Logging")
+        self._listVelocityMeasurement.append("\n;;")
+        self._listVelocityMeasurement.append("\nDate;Velocity-Left;Velocity-Right")
+        self._threadWriteLog = True
+
+
+    def _getLogEntryForCurrentVelocity(self):
+        logEntry = datetime.now().strftime("(%Y.%m.%d - %H:%M:%S.%f)")
+
+        if(self._motorLeftDirection is DrivingDirection.FORWARD.value):
+            logEntry += ";{}".format(self._motorLeftCurrVelocity)
+        else:
+            logEntry += ";{}".format(self._motorLeftCurrVelocity * -1)
+
+        if(self._motorRightDirection is DrivingDirection.FORWARD.value):
+            logEntry += ";{}".format(self._motorRightCurrVelocity)
+        else:
+            logEntry += ";{}".format(self._motorRightCurrVelocity * -1)
+
+        return logEntry
+
+    def stopLogging(self):
+        self._threadWriteLog = False
+        logFile = open(datetime.now().strftime("(%Y-%m-%dT%H%M%S)") + LOG_FILENAME, 'a')
+        logFile.writelines(self._listVelocityMeasurement)
+        logFile.close()
+        self._listVelocityMeasurement.clear()
 
 
     def run(self):
         """
         Running thread, which will do all the work for this module.
         """
-        self.threadIsRunning = True
-        self.threadRequestStop = False
+        self._threadIsRunning = True
+        self._threadRequestStop = False
 
-        while (self.threadIsRunning):
-            self.lock.acquire()
+        while (self._threadIsRunning):
             try:
-                #
-                if(self.threadRequestStop):
-                    self.threadIsRunning = False
+                # Stop thread
+                if(self._threadRequestStop):
+                    self._threadIsRunning = False
 
                 # Refresh driver
-                if(self.threadRefreshDrive):
-                    self.pi.hardware_PWM(BCM_PIN_NR_PWM_LEFT, self.motorLeftCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
-                    self.pi.hardware_PWM(BCM_PIN_NR_PWM_RIGHT, self.motorRightCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
-                    self.pi.write(BCM_PIN_NR_DIRECTION_LEFT, self.motorLeftDirection)
-                    self.pi.write(BCM_PIN_NR_DIRECTION_RIGHT, self.motorRightDirection)
+                if(self._threadRefreshDrive):
+                    self._pi.hardware_PWM(BCM_PIN_NR_PWM_LEFT, self._motorLeftCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
+                    self._pi.hardware_PWM(BCM_PIN_NR_PWM_RIGHT, self._motorRightCurrVelocity, PWM_DEFAULT_DUTYCYCLE)
+                    self._pi.write(BCM_PIN_NR_DIRECTION_LEFT, self._motorLeftDirection)
+                    self._pi.write(BCM_PIN_NR_DIRECTION_RIGHT, self._motorRightDirection)
 
-                    self.threadRefreshDrive = False
+                    self._threadRefreshDrive = False
+
+                # Log current velocity
+                if(self._threadWriteLog):
+                    self._listVelocityMeasurement.append("\n" + self._getLogEntryForCurrentVelocity())
+
+
             except Exception as err:
-                self._stopDriver()
-                self.threadIsRunning = False
+                self._stopMotor()
+                self._threadIsRunning = False
                 self._printDebug("Thread: Exception --> " + str(err))
             finally:
-                self.lock.release()
+                pass
 
             sleep((1 / 1000) * THREAD_SLEEP_MS)
 
