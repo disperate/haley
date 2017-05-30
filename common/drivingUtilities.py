@@ -36,7 +36,8 @@ SLOW_DOWN_STOP_OFFSET_IN_DEGREES    = 1.0
 CORRECTION_VALUE_LEFT_TURN          = 1.0
 CORRECTION_VALUE_RIGHT_TURN         = 1.0
 
-SINUS_PI_HALF                       = 1.57 # More precision is not necessary for given size of ticks
+PI                                  = 3.14 # More precision is not necessary for given size of ticks
+PI_HALF                             = 1.57 # More precision is not necessary for given size of ticks
 SINUS_PI_OFFSET                     = 0.4
 SINUS_TICK_SIZE                     = 0.025
 SINUS_TICK_SLEEP_MS                 = 10
@@ -54,31 +55,60 @@ class DrivingUtilities():
         self._printDebug("...done!")
 
 
-    def driveDistanceByTime(self, timeInMilliseconds, velocity):
-        if((abs(velocity) <= 100.0) and (timeInMilliseconds > 0)):
-            counter = 0.5
-            counter_ticks = 0.05
+    # Used functions
+    # --------------------------------------------------------------------------
+    def driveByTime(self, timeInMilliseconds, velocity):
+        timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / SINUS_TICK_SIZE) * SINUS_TICK_SLEEP_MS * 2)
 
-            # Start up
-            while(counter < (math.pi/2)):
-                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
-                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
-                counter = counter + counter_ticks
-                sleep(0.01)
+        self.accelerate(velocity)
+        sleep((1/1000) * timeInRequestedVelocity)
+        self.stop()
 
-            # Drive
-            self.motorDriver.setVelocityLeft(velocity)
-            self.motorDriver.setVelocityRight(velocity)
-            sleep((1 / 1000) * timeInMilliseconds)
+        return
 
-            # Slow down
-            while(counter > 0.25):
-                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
-                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
-                counter = counter - counter_ticks
-                sleep(0.01)
 
-            self.motorDriver.stopDriver()
+    def accelerate(self, targetVelocity):
+        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
+        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
+
+        if((int(initialVelocityLeft) + int(initialVelocityRight)) == 0 ):
+            # Starting from velocity 0
+            currPiValue = SINUS_PI_OFFSET
+
+            while (currPiValue < PI_HALF):
+                self.motorDriver.setVelocityLeft(targetVelocity * math.sin(currPiValue))
+                self.motorDriver.setVelocityRight(targetVelocity * math.sin(currPiValue))
+                currPiValue = currPiValue + SINUS_TICK_SIZE
+                sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
+        else:
+            # Starting from velocity != 0
+            deltaVelocityLeft = targetVelocity - initialVelocityLeft
+            deltaVelocityRight = targetVelocity - initialVelocityRight
+
+            currPiValue = 0
+
+            while (currPiValue < PI):
+                self.motorDriver.setVelocityLeft(initialVelocityLeft + deltaVelocityLeft * ((- math.cos(currPiValue) / 2) + 0.5))
+                self.motorDriver.setVelocityRight(initialVelocityRight + deltaVelocityRight * ((- math.cos(currPiValue) / 2) + 0.5))
+                currPiValue = currPiValue + 2 * SINUS_TICK_SIZE
+                sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
+
+        return
+
+
+    def stop(self):
+        currPiValue = PI_HALF
+        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
+        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
+
+        while (currPiValue < (PI - SINUS_PI_OFFSET)):
+            self.motorDriver.setVelocityLeft(initialVelocityLeft * math.sin(currPiValue))
+            self.motorDriver.setVelocityRight(initialVelocityRight * math.sin(currPiValue))
+            currPiValue = currPiValue + SINUS_TICK_SIZE
+            sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
+
+        self.motorDriver.stop()
+        return
 
 
     def approachWallAndStop(self, relativeDistanceInMillimeter):
@@ -121,60 +151,8 @@ class DrivingUtilities():
 
             sleep(0.1)
 
-        self.motorDriver.stopDriver()
-
-
-    def approachWallAndStopNew(self, relativeDistanceInMillimeter):
-        realDistance = relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET
-        currDiff = self.i2cHandler.getDistanceFront() - realDistance
-        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
-        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
-
-        for x in range(1, 8):
-            self._printDebug("Current velocity: {}".format(self.motorDriver.getCurrVelocityLeft()))
-            while (True):
-                currDiff = self.i2cHandler.getDistanceFront() - realDistance
-                if (currDiff < int(100 / x)):
-                    break
-                sleep(0.05)
-
-            self.motorDriver.setVelocityLeft(initialVelocityLeft / (2 * x))
-            self.motorDriver.setVelocityRight(initialVelocityRight / (2 * x))
-
-        self.motorDriver.stopDriver()
-
-
-    def driveByTime(self, timeInMilliseconds, velocity):
-        timeInRequestedVelocity = timeInMilliseconds - (((SINUS_PI_HALF - SINUS_PI_OFFSET) / SINUS_TICK_SIZE) * SINUS_TICK_SLEEP_MS * 2)
-
-        self.accelerate(velocity)
-        sleep((1/1000) * timeInRequestedVelocity)
-        self.stop()
-
-
-    # Starting from velocity 0
-    def accelerate(self, targetVelocity):
-        currPiValue = SINUS_PI_OFFSET
-
-        while (currPiValue < SINUS_PI_HALF):
-            self.motorDriver.setVelocityLeft(targetVelocity * math.sin(currPiValue))
-            self.motorDriver.setVelocityRight(targetVelocity * math.sin(currPiValue))
-            currPiValue = currPiValue + SINUS_TICK_SIZE
-            sleep((1/1000) * SINUS_TICK_SLEEP_MS)
-
-
-    def stop(self):
-        currPiValue = SINUS_PI_HALF
-        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
-        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
-
-        while (SINUS_PI_OFFSET < currPiValue):
-            self.motorDriver.setVelocityLeft(initialVelocityLeft * math.sin(currPiValue))
-            self.motorDriver.setVelocityRight(initialVelocityRight * math.sin(currPiValue))
-            currPiValue = currPiValue - SINUS_TICK_SIZE
-            sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
-
-        self.motorDriver.stopDriver()
+        self.motorDriver.stop()
+        return
 
 
     def turn(self, angle):
@@ -201,7 +179,7 @@ class DrivingUtilities():
 
                     # Stop
                     if (currDelta < SLOW_DOWN_STOP_OFFSET_IN_DEGREES):
-                        self.motorDriver.stopDriver()
+                        self.motorDriver.stop()
                         break
 
                     # Slow-Down
@@ -234,7 +212,7 @@ class DrivingUtilities():
 
                     # Stop
                     if (currDelta < SLOW_DOWN_STOP_OFFSET_IN_DEGREES):
-                        self.motorDriver.stopDriver()
+                        self.motorDriver.stop()
                         break
 
                     # Slow-Down
@@ -247,10 +225,12 @@ class DrivingUtilities():
                     sleep(1 / LOOP_FREQUENCY)
 
                 self._printDebug("...done!")
+        return
+
 
     def adjustToWall(self, _direction):
 
-        while(True):
+        while (True):
             if _direction is direction.direction.RIGHT:
                 frontDistance = self.i2cHandler.getDistanceLeftFront()
                 backDistance = self.i2cHandler.getDistanceLeftBack()
@@ -259,14 +239,16 @@ class DrivingUtilities():
             if _direction is direction.direction.LEFT:
                 frontDistance = self.i2cHandler.getDistanceRightFront()
                 backDistance = self.i2cHandler.getDistanceRightBack()
-                diff = backDistance -frontDistance
+                diff = backDistance - frontDistance
 
             if abs(diff) > 10:
                 if diff > 0:
-                    print("Correcting angle, distance diff was: " + str(diff))
+                    print("Correcting angle, distance diff was: " + str(
+                        diff))
                     self.turn(0.3)
                 else:
-                    print("Correcting angle, distance diff was: " + str(diff))
+                    print("Correcting angle, distance diff was: " + str(
+                        diff))
                     self.turn(-0.3)
 
                 sleep(0.3)
@@ -274,7 +256,59 @@ class DrivingUtilities():
                 print("accepted diff: " + str(diff))
                 break
 
+        return
+
 
     def _printDebug(self, message):
         if (__debug__):
             print("    {}: {}".format(self.__class__.__name__, message))
+
+        return
+
+    # Experimental
+    # --------------------------------------------------------------------------
+    def driveDistanceByTime(self, timeInMilliseconds, velocity):
+        if((abs(velocity) <= 100.0) and (timeInMilliseconds > 0)):
+            counter = 0.5
+            counter_ticks = 0.05
+
+            # Start up
+            while(counter < (math.pi/2)):
+                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
+                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
+                counter = counter + counter_ticks
+                sleep(0.01)
+
+            # Drive
+            self.motorDriver.setVelocityLeft(velocity)
+            self.motorDriver.setVelocityRight(velocity)
+            sleep((1 / 1000) * timeInMilliseconds)
+
+            # Slow down
+            while(counter > 0.25):
+                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
+                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
+                counter = counter - counter_ticks
+                sleep(0.01)
+
+            self.motorDriver.stop()
+
+
+    def approachWallAndStopNew(self, relativeDistanceInMillimeter):
+        realDistance = relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET
+        currDiff = self.i2cHandler.getDistanceFront() - realDistance
+        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
+        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
+
+        for x in range(1, 8):
+            self._printDebug("Current velocity: {}".format(self.motorDriver.getCurrVelocityLeft()))
+            while (True):
+                currDiff = self.i2cHandler.getDistanceFront() - realDistance
+                if (currDiff < int(100 / x)):
+                    break
+                sleep(0.05)
+
+            self.motorDriver.setVelocityLeft(initialVelocityLeft / (2 * x))
+            self.motorDriver.setVelocityRight(initialVelocityRight / (2 * x))
+
+        self.motorDriver.stop()
