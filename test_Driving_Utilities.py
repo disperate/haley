@@ -8,6 +8,7 @@ from time import sleep
 
 motorDriver = None
 handler = None
+testPattern = 2
 
 try:
     handler = i2cHandler.I2cHandler()
@@ -15,43 +16,36 @@ try:
 
     motorDriver = motor.motor()
     motorDriver.start()
-    motorDriver.startLogging()
+    #motorDriver.startLogging()
 
     utilities = drivingUtilities.DrivingUtilities(handler, motorDriver)
-    sleep(0.5)
-    utilities.accelerate(30)
-    sleep(0.5)
-    utilities.accelerate(80)
-    sleep(0.5)
-    utilities.accelerate(-80)
-    sleep(0.5)
-    utilities.accelerate(-30)
-    sleep(0.5)
+
+    # Simple drive forward, turn, forward, turn
+    if(testPattern == 1):
+        for x in range(0,1):
+            sleep(0.5)
+            utilities.accelerate(60)
+            sleep(1)
+            utilities.accelerate(100)
+            utilities.stop()
+            utilities.turn(180)
+            utilities.accelerate(100)
+            sleep(1)
+            utilities.accelerate(60)
+            sleep(0.5)
+            utilities.stop()
+            utilities.turn(180)
+
+    # Approach wall test
+    if(testPattern == 2):
+        sleep(0.5)
+        utilities.driveByTime(2000, -80)
+        utilities.accelerate(100)
+        utilities.approachWallAndStop(10)
+
+
     utilities.stop()
-    sleep(0.5)
-
-
-    #utilities.turn(90.0)
-
-    """utilities.driveDistanceByTime(1700, 80.0)
-utilities.driveDistanceByTime(1700, -80.0)
-utilities.driveDistanceByTime(1700, 80.0)
-utilities.driveDistanceByTime(1700, -80.0)"""
-    #utilities.turn(-90.0)
-    #utilities.driveDistanceByTime(1300, 80.0)
-    #utilities.turn(-90.0)
-
-    """utilities.driveDistanceByTime(1500, 80.0)
-    utilities.turn(90.0)
-    utilities.driveDistanceByTime(3000, 80.0)
-    utilities.turn(90.0)
-    utilities.driveDistanceByTime(3000, 80.0)
-    utilities.turn(90.0)
-    utilities.driveDistanceByTime(3000, 80.0)
-    utilities.turn(90.0)
-    utilities.driveDistanceByTime(1500, 80.0)"""
-
-    motorDriver.stopLogging()
+    #motorDriver.stopLogging()
     motorDriver.terminate()
     handler.terminate()
 
