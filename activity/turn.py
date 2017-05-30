@@ -62,3 +62,37 @@ class turnActivity(Thread):
 
         self._fsm.turned = True
         self._fsm.turnDone()
+
+
+"""
+Adjusted turn-activity for the updated drivingUtilities-module
+---------------------
+        # 1. Drive straight ahead for a specific time
+        print("Drive 1.1 sec")
+        self._util.driveByTime(1100, 80)
+
+        # 2. Turn haley 90°
+        print("Turn 90")
+        if self._direction is direction.direction.LEFT:
+            self._util.turn(90)
+        if self._direction is direction.direction.RIGHT:
+            self._util.turn(-90)
+
+        # 3. Drive straight ahead until fork has a distance of 10mm to the wall
+        print("Drive straight ahead until fork as a distance of 10mm to the wall")
+        self._util.accelerate(80)
+        self._util.approachWallAndStop(10)
+        
+        # 4. Turn haley 90° again
+        print("Turn 90")
+        if self._direction is direction.direction.LEFT:
+            self._util.turn(90)
+        if self._direction is direction.direction.RIGHT:
+            self._util.turn(-90)
+
+        # 5. Check sensors if haley is parallel
+        self._util.adjustToWall(self._direction)
+
+        # 6. Drive straight ahead until sensors on both sides get ze right dimension
+        self._util.accelerate(70)
+"""
