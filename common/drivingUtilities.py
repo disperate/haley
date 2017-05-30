@@ -29,7 +29,7 @@ import math
 TURN_VELOCITY_START                 = 0.5
 TURN_VELOCITY_MAX                   = 50.0
 LOOP_FREQUENCY                      = 10
-DRIVE_UP_TICK_VALUE                 = 0.025
+DRIVE_UP_TICK_VALUE                 = 0.020
 DRIVE_UP_RANGE_IN_DEGREES           = 15.0 # Marks drive-up range
 SLOW_DOWN_RANGE_IN_DEGREES          = 15.0 # Marks slow-down range
 SLOW_DOWN_STOP_OFFSET_IN_DEGREES    = 1.0
@@ -42,8 +42,12 @@ SINUS_PI_OFFSET                     = 0.4
 SINUS_TICK_SIZE                     = 0.025
 SINUS_TICK_SLEEP_MS                 = 10
 
-FRONT_SENSOR_OFFSET                 = 45 # Measurement in mm (Distance between sensor and front-bumper) (Wood)
+FRONT_SENSOR_OFFSET                 = 62 # Measurement in mm (Distance between sensor and front-bumper) (Wood)
 
+APPROACH_PATTERN_VERY_SLOW          = [50, 25, 10, 5] # for velocities between 0% & 25%
+APPROACH_PATTERN_SLOW               = [75, 40, 20, 5] # for velocities between 25% & 50%
+APPROACH_PATTERN_FAST               = [100, 80, 40, 15, 5] # for velocities between 50% & 75%
+APPROACH_PATTERN_VERY_FAST          = [200, 80, 40, 15, 5] # for velocities between 75% & 100%
 
 class DrivingUtilities():
     # Konstruktor
@@ -112,37 +116,39 @@ class DrivingUtilities():
 
 
     def approachWallAndStop(self, relativeDistanceInMillimeter):
+        divisor = 1
+        approachPattern = None
         realDistance = relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET
+        self._printDebug("approachWallAndStop(): Required distance --> {}mm".format(relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET))
         currDiff = self.i2cHandler.getDistanceFront() - realDistance
         initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
         initialVelocityRight = self.motorDriver.getCurrVelocityRight()
 
-        while(True):
-            currDiff = self.i2cHandler.getDistanceFront() - realDistance
-            if (currDiff < 100):
-                break
-            sleep(0.1)
+        # Set approaching pattern for different velocities
+        if(75.0 < abs(initialVelocityLeft)):
+            approachPattern = APPROACH_PATTERN_VERY_FAST
+            self._printDebug("approachWallAndStop(): Set approaching pattern VERY_FAST")
+        elif (50.0 < abs(initialVelocityLeft)):
+            approachPattern = APPROACH_PATTERN_FAST
+            self._printDebug("approachWallAndStop(): Set approaching pattern FAST")
+        elif (25.0 < abs(initialVelocityLeft)):
+            approachPattern = APPROACH_PATTERN_SLOW
+            self._printDebug("approachWallAndStop(): Set approaching pattern SLOW")
+        else:
+            approachPattern = APPROACH_PATTERN_VERY_SLOW
+            self._printDebug("approachWallAndStop(): Set approaching pattern VERY_SLOW")
 
-        self.motorDriver.setVelocityLeft(initialVelocityLeft / 2)
-        self.motorDriver.setVelocityRight(initialVelocityRight / 2)
+        # Use pattern for approaching wall
+        for triggerDistance in approachPattern:
+            while (True):
+                currDiff = self.i2cHandler.getDistanceFront() - realDistance
+                if (currDiff < triggerDistance):
+                    break
+                sleep(0.1)
 
-        while(True):
-            currDiff = self.i2cHandler.getDistanceFront() - realDistance
-            if (currDiff < 50):
-                break
-            sleep(0.1)
-
-        self.motorDriver.setVelocityLeft(initialVelocityLeft / 4)
-        self.motorDriver.setVelocityRight(initialVelocityRight / 4)
-
-        while(True):
-            currDiff = self.i2cHandler.getDistanceFront() - realDistance
-            if (currDiff < 25):
-                break
-            sleep(0.1)
-
-        self.motorDriver.setVelocityLeft(initialVelocityLeft / 8)
-        self.motorDriver.setVelocityRight(initialVelocityRight / 8)
+            divisor = divisor * 2
+            self.motorDriver.setVelocityLeft(initialVelocityLeft / divisor)
+            self.motorDriver.setVelocityRight(initialVelocityRight / divisor)
 
         while(True):
             currDiff = self.i2cHandler.getDistanceFront() - realDistance
@@ -152,6 +158,7 @@ class DrivingUtilities():
             sleep(0.1)
 
         self.motorDriver.stop()
+        self._printDebug("approachWallAndStop(): Reached distance --> {}mm".format(self.i2cHandler.getDistanceFront()))
         return
 
 
@@ -264,51 +271,3 @@ class DrivingUtilities():
             print("    {}: {}".format(self.__class__.__name__, message))
 
         return
-
-    # Experimental
-    # --------------------------------------------------------------------------
-    def driveDistanceByTime(self, timeInMilliseconds, velocity):
-        if((abs(velocity) <= 100.0) and (timeInMilliseconds > 0)):
-            counter = 0.5
-            counter_ticks = 0.05
-
-            # Start up
-            while(counter < (math.pi/2)):
-                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
-                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
-                counter = counter + counter_ticks
-                sleep(0.01)
-
-            # Drive
-            self.motorDriver.setVelocityLeft(velocity)
-            self.motorDriver.setVelocityRight(velocity)
-            sleep((1 / 1000) * timeInMilliseconds)
-
-            # Slow down
-            while(counter > 0.25):
-                self.motorDriver.setVelocityLeft(velocity * math.sin(counter))
-                self.motorDriver.setVelocityRight(velocity * math.sin(counter))
-                counter = counter - counter_ticks
-                sleep(0.01)
-
-            self.motorDriver.stop()
-
-
-    def approachWallAndStopNew(self, relativeDistanceInMillimeter):
-        realDistance = relativeDistanceInMillimeter + FRONT_SENSOR_OFFSET
-        currDiff = self.i2cHandler.getDistanceFront() - realDistance
-        initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
-        initialVelocityRight = self.motorDriver.getCurrVelocityRight()
-
-        for x in range(1, 8):
-            self._printDebug("Current velocity: {}".format(self.motorDriver.getCurrVelocityLeft()))
-            while (True):
-                currDiff = self.i2cHandler.getDistanceFront() - realDistance
-                if (currDiff < int(100 / x)):
-                    break
-                sleep(0.05)
-
-            self.motorDriver.setVelocityLeft(initialVelocityLeft / (2 * x))
-            self.motorDriver.setVelocityRight(initialVelocityRight / (2 * x))
-
-        self.motorDriver.stop()
