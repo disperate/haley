@@ -30,7 +30,7 @@ from modul.i2cModules.VL53L0X import SensorItem
 SENSOR_LEFT_BACK                        = 0
 SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR    = 14 # Test OK
 SENSOR_LEFT_BACK_I2C_ADDRESS            = 0x30
-SENSOR_LEFT_BACK_OFFSET                 = 0.0
+SENSOR_LEFT_BACK_OFFSET                 = 0
 
 SENSOR_LEFT_FRONT                       = 1
 SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR   = 15 # Test OK
