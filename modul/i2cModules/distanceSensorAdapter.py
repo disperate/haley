@@ -30,22 +30,27 @@ from modul.i2cModules.VL53L0X import SensorItem
 SENSOR_LEFT_BACK                        = 0
 SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR    = 14 # Test OK
 SENSOR_LEFT_BACK_I2C_ADDRESS            = 0x30
+SENSOR_LEFT_BACK_OFFSET                 = 0.0
 
 SENSOR_LEFT_FRONT                       = 1
 SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR   = 15 # Test OK
 SENSOR_LEFT_FRONT_I2C_ADDRESS           = 0x31
+SENSOR_LEFT_FRONT_OFFSET                = 0
 
 SENSOR_FRONT                            = 2
 SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR        = 21 # Test OK
 SENSOR_FRONT_I2C_ADDRESS                = 0x32
+SENSOR_FRONT_OFFSET                     = 0
 
 SENSOR_RIGHT_FRONT                      = 3
 SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR  = 26 # Test OK
 SENSOR_RIGHT_FRONT_I2C_ADDRESS          = 0x33
+SENSOR_RIGHT_FRONT_OFFSET               = 0
 
 SENSOR_RIGHT_BACK                       = 4
 SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR   = 27 # Test OK
 SENSOR_RIGHT_BACK_I2C_ADDRESS           = 0x34
+SENSOR_RIGHT_BACK_OFFSET                = 0
 
 # Other Constants
 INVALID_VALUE                           = -1
@@ -70,19 +75,19 @@ class DistanceSensorAdapter():
             self._printDebug("Init...")
             # Init sensors
             if(SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR != 0):
-                self._sensors[SENSOR_LEFT_BACK] = SensorItem.SensorItem(SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR, SENSOR_LEFT_BACK_I2C_ADDRESS)
+                self._sensors[SENSOR_LEFT_BACK] = SensorItem.SensorItem(SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR, SENSOR_LEFT_BACK_I2C_ADDRESS, SENSOR_LEFT_BACK_OFFSET)
 
             if (SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR != 0):
-                self._sensors[SENSOR_LEFT_FRONT] = SensorItem.SensorItem(SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_LEFT_FRONT_I2C_ADDRESS)
+                self._sensors[SENSOR_LEFT_FRONT] = SensorItem.SensorItem(SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_LEFT_FRONT_I2C_ADDRESS, SENSOR_LEFT_FRONT_OFFSET)
 
             if (SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR != 0):
-                self._sensors[SENSOR_FRONT] = SensorItem.SensorItem(SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_FRONT_I2C_ADDRESS)
+                self._sensors[SENSOR_FRONT] = SensorItem.SensorItem(SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_FRONT_I2C_ADDRESS, SENSOR_FRONT_OFFSET)
 
             if (SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR != 0):
-                self._sensors[SENSOR_RIGHT_FRONT] = SensorItem.SensorItem(SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_RIGHT_FRONT_I2C_ADDRESS)
+                self._sensors[SENSOR_RIGHT_FRONT] = SensorItem.SensorItem(SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR, SENSOR_RIGHT_FRONT_I2C_ADDRESS, SENSOR_RIGHT_FRONT_OFFSET)
 
             if (SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR != 0):
-                self._sensors[SENSOR_RIGHT_BACK]    = SensorItem.SensorItem(SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR, SENSOR_RIGHT_BACK_I2C_ADDRESS)
+                self._sensors[SENSOR_RIGHT_BACK] = SensorItem.SensorItem(SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR, SENSOR_RIGHT_BACK_I2C_ADDRESS, SENSOR_RIGHT_BACK_OFFSET)
 
             for x in range(0,5):
                 if(self._sensors[x] is not None):

@@ -27,10 +27,11 @@ RESET_TIME_MS = 250 # Time in milliseconds
 class SensorItem():
     # Konstruktor
     # --------------------------------------------------------------------------
-    def __init__(self, shutDownPin, address):
+    def __init__(self, shutDownPin, address, offset):
         self._pigpio  = None
         self._shutDownPin = shutDownPin
         self._address = address
+        self._offset = offset
         self._sensor = None
         self._initCounter = 0
         self._sensorIsRunning = False
@@ -83,11 +84,12 @@ class SensorItem():
         if ((self._sensor is None) or (self._sensorIsRunning is False)):
             return INVALID_VALUE
         else:
-            return self._sensor.get_distance()
+            return self._sensor.get_distance() + self._offset
 
 
     def getInitCounter(self):
         return self._initCounter
+
 
     def isRunning(self):
         return self._sensorIsRunning
