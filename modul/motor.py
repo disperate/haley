@@ -230,7 +230,7 @@ class motor(Thread):
 
 
     def _getLogEntryForCurrentVelocity(self):
-        logEntry = datetime.now().strftime("(%Y.%m.%d - %H:%M:%S.%f)")
+        logEntry = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
 
         if(self._motorLeftDirection is DrivingDirection.FORWARD.value):
             logEntry += ";{}".format(self._motorLeftCurrVelocity)

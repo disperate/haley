@@ -29,7 +29,7 @@ import math
 TURN_VELOCITY_START                 = 0.5
 TURN_VELOCITY_MAX                   = 50.0
 LOOP_FREQUENCY                      = 10
-DRIVE_UP_TICK_VALUE                 = 0.020
+DRIVE_UP_TICK_VALUE                 = 0.025
 DRIVE_UP_RANGE_IN_DEGREES           = 15.0 # Marks drive-up range
 SLOW_DOWN_RANGE_IN_DEGREES          = 15.0 # Marks slow-down range
 SLOW_DOWN_STOP_OFFSET_IN_DEGREES    = 1.0
@@ -39,10 +39,10 @@ CORRECTION_VALUE_RIGHT_TURN         = 1.0
 PI                                  = 3.14 # More precision is not necessary for given size of ticks
 PI_HALF                             = 1.57 # More precision is not necessary for given size of ticks
 SINUS_PI_OFFSET                     = 0.4
-SINUS_TICK_SIZE                     = 0.025
+SINUS_TICK_SIZE_DEFAULT             = 0.025
 SINUS_TICK_SLEEP_MS                 = 10
 
-FRONT_SENSOR_OFFSET                 = 62 # Measurement in mm (Distance between sensor and front-bumper) (Wood)
+FRONT_SENSOR_OFFSET                 = 59 # Measurement in mm (Distance between sensor and front-bumper) (Wood)
 
 APPROACH_PATTERN_VERY_SLOW          = [50, 25, 10, 5] # for velocities between 0% & 25%
 APPROACH_PATTERN_SLOW               = [75, 40, 20, 5] # for velocities between 25% & 50%
@@ -58,20 +58,60 @@ class DrivingUtilities():
         self.motorDriver = motorDriver
         self._printDebug("...done!")
 
+        return
+
 
     # Used functions
     # --------------------------------------------------------------------------
-    def driveByTime(self, timeInMilliseconds, velocity):
-        timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / SINUS_TICK_SIZE) * SINUS_TICK_SLEEP_MS * 2)
-
-        self.accelerate(velocity)
-        sleep((1/1000) * timeInRequestedVelocity)
-        self.stop()
+    def accelerate(self, requestedVelocity):
+        sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), requestedVelocity)
+        self._accelerate(requestedVelocity, sinusTickSize)
 
         return
 
 
-    def accelerate(self, targetVelocity):
+    def stop(self):
+        sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), 0)
+        self._stop(sinusTickSize)
+
+        return
+
+
+    def driveByTime(self, timeInMilliseconds, requestedVelocity):
+        # Set optimal ticksize
+        sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), requestedVelocity)
+
+        # Calculate the time, which haley drives with the requested velocity
+        timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / sinusTickSize) * SINUS_TICK_SLEEP_MS * 2)
+
+        if(timeInRequestedVelocity < 0.0):
+            sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), requestedVelocity / 2)
+            timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / sinusTickSize) * SINUS_TICK_SLEEP_MS * 2)
+
+        self._printDebug("driveByTime(): sinusTickSize = {}, timeInRequestedVelocity = {}".format(sinusTickSize, timeInRequestedVelocity))
+
+        self._accelerate(requestedVelocity, sinusTickSize)
+        sleep((1/1000) * timeInRequestedVelocity)
+        self._stop(sinusTickSize)
+
+        return
+
+
+    def _getOptimalTickSize(self, currentVelocity, targetVelocity):
+        deltaVelocity = abs(targetVelocity - currentVelocity)
+
+        if (deltaVelocity > 100):
+            return SINUS_TICK_SIZE_DEFAULT
+        elif (deltaVelocity > 50):
+            return SINUS_TICK_SIZE_DEFAULT * 2
+        elif (deltaVelocity > 25):
+            return SINUS_TICK_SIZE_DEFAULT * 4
+        else:
+            return SINUS_TICK_SIZE_DEFAULT * 8
+
+
+    def _accelerate(self, targetVelocity, sinusTickSize = SINUS_TICK_SIZE_DEFAULT):
+        self._printDebug("_accelerate(): sinusTickSize = {}".format(sinusTickSize))
         initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
         initialVelocityRight = self.motorDriver.getCurrVelocityRight()
 
@@ -82,7 +122,7 @@ class DrivingUtilities():
             while (currPiValue < PI_HALF):
                 self.motorDriver.setVelocityLeft(targetVelocity * math.sin(currPiValue))
                 self.motorDriver.setVelocityRight(targetVelocity * math.sin(currPiValue))
-                currPiValue = currPiValue + SINUS_TICK_SIZE
+                currPiValue = currPiValue + sinusTickSize
                 sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
         else:
             # Starting from velocity != 0
@@ -94,13 +134,14 @@ class DrivingUtilities():
             while (currPiValue < PI):
                 self.motorDriver.setVelocityLeft(initialVelocityLeft + deltaVelocityLeft * ((- math.cos(currPiValue) / 2) + 0.5))
                 self.motorDriver.setVelocityRight(initialVelocityRight + deltaVelocityRight * ((- math.cos(currPiValue) / 2) + 0.5))
-                currPiValue = currPiValue + 2 * SINUS_TICK_SIZE
+                currPiValue = currPiValue + 2 * sinusTickSize
                 sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
 
         return
 
 
-    def stop(self):
+    def _stop(self, sinusTickSize = SINUS_TICK_SIZE_DEFAULT):
+        self._printDebug("_stop(): sinusTickSize = {}".format(sinusTickSize))
         currPiValue = PI_HALF
         initialVelocityLeft = self.motorDriver.getCurrVelocityLeft()
         initialVelocityRight = self.motorDriver.getCurrVelocityRight()
@@ -108,10 +149,11 @@ class DrivingUtilities():
         while (currPiValue < (PI - SINUS_PI_OFFSET)):
             self.motorDriver.setVelocityLeft(initialVelocityLeft * math.sin(currPiValue))
             self.motorDriver.setVelocityRight(initialVelocityRight * math.sin(currPiValue))
-            currPiValue = currPiValue + SINUS_TICK_SIZE
+            currPiValue = currPiValue + sinusTickSize
             sleep((1 / 1000) * SINUS_TICK_SLEEP_MS)
 
         self.motorDriver.stop()
+
         return
 
 
@@ -159,6 +201,7 @@ class DrivingUtilities():
 
         self.motorDriver.stop()
         self._printDebug("approachWallAndStop(): Reached distance --> {}mm".format(self.i2cHandler.getDistanceFront()))
+
         return
 
 
