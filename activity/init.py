@@ -34,10 +34,10 @@ MIN_TIME = 3.0
 #
 class initActivity(object):
     # *** Konstruktor ***
-    def __init__(self, fsm, i2c, buttonpresser):
+    def __init__(self, fsm, i2c):
         super().__init__()
         self._i2c = i2c
-        self._buttonpresser = buttonpresser
+        self._fork = forkHandler.Fork(self._i2c)
         self._pi = pigpio.pi()
 
         if self.waitForButton() > MIN_TIME:  # Schalter auf Konfig und Taste zwischen >4s betätigt
@@ -79,19 +79,19 @@ class initActivity(object):
 
             if (self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()):
                 if (self._i2c.getDistanceLeftFront() > self._i2c.getDistanceRightFront()):
-                    self._buttonpresser.left()
+                    self._fork.moveLeft()
                     if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
                         sleep(0.01)
-                        self._buttonpresser.stop()
+                        self._fork.stopMovement()
                         sleep(0.02)
                 else:
-                    self._buttonpresser.right()
+                    self._fork.moveRight()
                     if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
                         sleep(0.01)
-                        self._buttonpresser.stop()
+                        self._fork.stopMovement()
                         sleep(0.02)
             else:
-                self._buttonpresser.stop()
+                self._fork.stopMovement()
                 sumDiff = 0
                 for i in range(0, 5):
                     sumDiff += abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront())
@@ -116,7 +116,12 @@ class initActivity(object):
 
         #TODO replace 40 with messured offset
         #TODO save offsets to i2c Modul
-        offsetLeftFront = sumLeftFront / 8 - 40
-        offsetLeftBack = sumLeftBack / 8 - 40
-        offsetRightFront = sumRightFront / 8 - 40
-        offsetRightBack = sumRightBack / 8 - 40
+        offsetLeftFront = sumLeftFront / 8 - 93
+        offsetLeftBack = sumLeftBack / 8 - 94
+        offsetRightFront = sumRightFront / 8 - 93
+        offsetRightBack = sumRightBack / 8 - 94
+        print("OffsetLeftFront:  " + str(offsetLeftFront))
+        print("OffsetLeftBack:   " + str(offsetLeftBack))
+        print("OffsetRightFront: " + str(offsetRightFront))
+        print("OffsetRightBack:  " + str(offsetRightBack))
+
