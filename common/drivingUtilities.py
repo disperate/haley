@@ -78,15 +78,20 @@ class DrivingUtilities():
 
 
     def driveByTime(self, timeInMilliseconds, requestedVelocity):
-        # Set optimal ticksize
-        sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), requestedVelocity)
+        currVelocity = self.motorDriver.getCurrVelocityLeft()
+        sinusTickSize = None
+        timeInRequestedVelocity = None
+        divisor = 1
 
-        # Calculate the time, which haley drives with the requested velocity
-        timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / sinusTickSize) * SINUS_TICK_SLEEP_MS * 2)
-
-        if(timeInRequestedVelocity < 0.0):
-            sinusTickSize = self._getOptimalTickSize(self.motorDriver.getCurrVelocityLeft(), requestedVelocity / 2)
+        # Set optimal ticksize to avoid sleeptime < 0.0
+        while True:
+            sinusTickSize = self._getOptimalTickSize(currVelocity, requestedVelocity / divisor)
             timeInRequestedVelocity = timeInMilliseconds - (((PI_HALF - SINUS_PI_OFFSET) / sinusTickSize) * SINUS_TICK_SLEEP_MS * 2)
+
+            if timeInRequestedVelocity >= 0.0:
+                break
+            else:
+                divisor = divisor * 2
 
         self._printDebug("driveByTime(): sinusTickSize = {}, timeInRequestedVelocity = {}".format(sinusTickSize, timeInRequestedVelocity))
 

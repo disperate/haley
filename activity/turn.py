@@ -16,8 +16,8 @@ class turnActivity(Thread):
     def run(self):
 
         # 1. Drive straight ahead for a specific time
-        print("Drive 1.1 sec")
-        self._util.driveByTime(1100, 80)
+        print("Drive 0.6 sec")
+        self._util.driveByTime(600, 80)
 
         # 2. Turn haley 90°
         print("Turn 90")
