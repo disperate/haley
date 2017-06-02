@@ -21,6 +21,7 @@
 # Imports
 import time
 from time import sleep
+from modul import forkHandler
 
 import pigpio
 
