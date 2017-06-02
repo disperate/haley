@@ -20,15 +20,15 @@ class buttonPressActivity(Thread):
 
     def run(self):
         # Drive straight ahead until a distance of 40mm in front of the buttons
-        self._util.approachWallAndStop(40)
+        self._util.approachWallAndStop(50)
 
         # Positioning fork
-        self._fork.setPositionForNumber(5, self._direction)
+        self._fork.setPositionForNumber(3, self._direction)
 
         # Smash that fuckin' button
         self._motor.setVelocityLeft(20)
         self._motor.setVelocityRight(20)
-        sleep(0.3)
+        sleep(0.7)
         # Step back
         self._util.driveByTime(1000, -40)
         # Reset position of fork
