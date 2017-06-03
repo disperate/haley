@@ -22,6 +22,7 @@
 import time
 from time import sleep
 from modul import forkHandler
+from modul.i2cModules import distanceSensorAdapter
 
 import pigpio
 
@@ -93,34 +94,40 @@ class initActivity(object):
                         sleep(0.02)
             else:
                 self._fork.stopMovement()
-                sumDiff = 0
-                for i in range(0, 5):
-                    sumDiff += abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront())
-                    sleep(0.1)
-                if sumDiff < 6:
-                    print("LEFTFRONT: " + str(self._i2c.getDistanceLeftFront()))
+                result = self.getMeanDist(8)
+                if abs(result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - result[distanceSensorAdapter.SENSOR_RIGHT_FRONT]) < 4:
+                    print("LEFTFRONT:  " + str(self._i2c.getDistanceLeftFront()))
                     print("RIGHTFRONT: " + str(self._i2c.getDistanceRightFront()))
+                    print("LEFTBACK:   " + str(self._i2c.getDistanceLeftBack()))
+                    print("RIGHTBACK:  " + str(self._i2c.getDistanceRightBack()))
                     moveButtonSlider = False
             sleep(0.01)
 
-    def getDistOffset(self):
+    def getMeanDist(self, anzMess=8):
         sumRightFront = 0
         sumLeftFront = 0
+        sumFront = 0
         sumRightBack = 0
         sumLeftBack = 0
-        for i in range(0, 7):
-            sumLeftBack += self._i2c.getDistanceLeftBack()
-            sumLeftFront += self._i2c.getDistanceLeftFront()
-            sumRightBack += self._i2c.getDistanceRightBack()
+        for i in range(0, anzMess):
+            sumLeftBack   += self._i2c.getDistanceLeftBack()
+            sumLeftFront  += self._i2c.getDistanceLeftFront()
+            sumFront      += self._i2c.getDistanceFront()
+            sumRightBack  += self._i2c.getDistanceRightBack()
             sumRightFront += self._i2c.getDistanceRightFront()
-            sleep(0.1)
+            sleep(0.11)
 
-        #TODO replace 40 with messured offset
+        return [sumLeftBack/anzMess, sumLeftFront/anzMess, sumFront/anzMess, sumRightFront/anzMess, sumRightBack/anzMess]
+
+    def getDistOffset(self):
+        result = self.getMeanDist(8)
+
         #TODO save offsets to i2c Modul
-        offsetLeftFront = sumLeftFront / 8 - 93
-        offsetLeftBack = sumLeftBack / 8 - 94
-        offsetRightFront = sumRightFront / 8 - 93
-        offsetRightBack = sumRightBack / 8 - 94
+        offsetLeftFront  = result[distanceSensorAdapter.SENSOR_LEFT_BACK]   - 91
+        offsetLeftBack   = result[distanceSensorAdapter.SENSOR_LEFT_FRONT]  - 90
+        offsetRightFront = result[distanceSensorAdapter.SENSOR_RIGHT_FRONT] - 91
+        offsetRightBack  = result[distanceSensorAdapter.SENSOR_RIGHT_BACK]  - 90
+
         print("OffsetLeftFront:  " + str(offsetLeftFront))
         print("OffsetLeftBack:   " + str(offsetLeftBack))
         print("OffsetRightFront: " + str(offsetRightFront))

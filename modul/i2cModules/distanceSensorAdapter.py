@@ -30,12 +30,12 @@ from modul.i2cModules.VL53L0X import SensorItem
 SENSOR_LEFT_BACK                        = 0
 SENSOR_LEFT_BACK_SHUTDOWN_BCM_PIN_NR    = 14 # Test OK
 SENSOR_LEFT_BACK_I2C_ADDRESS            = 0x30
-SENSOR_LEFT_BACK_OFFSET                 = -9
+SENSOR_LEFT_BACK_OFFSET                 = -9        # 03.06.17 us: changed from -9 to -9
 
 SENSOR_LEFT_FRONT                       = 1
 SENSOR_LEFT_FRONT_SHUTDOWN_BCM_PIN_NR   = 15 # Test OK
 SENSOR_LEFT_FRONT_I2C_ADDRESS           = 0x31
-SENSOR_LEFT_FRONT_OFFSET                = -7
+SENSOR_LEFT_FRONT_OFFSET                = -10       # 03.06.17 us: changed from -7 to -10
 
 SENSOR_FRONT                            = 2
 SENSOR_FRONT_SHUTDOWN_BCM_PIN_NR        = 21 # Test OK
@@ -45,12 +45,12 @@ SENSOR_FRONT_OFFSET                     = 3
 SENSOR_RIGHT_FRONT                      = 3
 SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR  = 26 # Test OK
 SENSOR_RIGHT_FRONT_I2C_ADDRESS          = 0x33
-SENSOR_RIGHT_FRONT_OFFSET               = -3
+SENSOR_RIGHT_FRONT_OFFSET               = -8        # 03.06.17 us: changed from -3 to -8
 
 SENSOR_RIGHT_BACK                       = 4
 SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR   = 27 # Test OK
 SENSOR_RIGHT_BACK_I2C_ADDRESS           = 0x34
-SENSOR_RIGHT_BACK_OFFSET                = -2
+SENSOR_RIGHT_BACK_OFFSET                = -5        # 03.06.17 us: changed from -2 to -5
 
 # Other Constants
 INVALID_VALUE                           = -1
