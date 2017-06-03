@@ -17,7 +17,7 @@ class turnActivity(Thread):
 
         # 1. Drive straight ahead for a specific time
         print("Drive 0.6 sec")
-        self._util.driveByTime(600, 80)
+        self._util.driveByTime(700, 80)
 
         # 2. Turn haley 90°
         print("Turn 90")
@@ -26,8 +26,8 @@ class turnActivity(Thread):
         if self._direction is direction.direction.RIGHT:
             self._util.turn(-90)
 
-        # 3. Drive straight ahead until fork has a distance of 15mm to the wall
-        print("Drive straight ahead until fork as a distance of 15mm to the wall")
+        # 3. Drive straight ahead until fork has a distance of 10mm to the wall
+        print("Drive straight ahead until fork as a distance of 10mm to the wall")
         self._util.accelerate(80)
         self._util.approachWallAndStop(10)
 

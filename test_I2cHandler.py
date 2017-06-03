@@ -21,7 +21,7 @@ try:
     handler.setRomanNumber("3")
 
     while(True):
-        sleep(0.1)
+        sleep(0.5)
         print("\033c")
         print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
             handler.getDistanceLeftBack(),

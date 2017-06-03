@@ -19,20 +19,23 @@ class buttonPressActivity(Thread):
         self._fork = forkHandler.Fork(self._i2c)
 
     def run(self):
-        # Drive straight ahead until a distance of 40mm in front of the buttons
-        self._util.approachWallAndStop(50)
+        try:
+            # Drive straight ahead until a distance of 50mm in front of the buttons
+            self._util.approachWallAndStop(50)
 
-        # Positioning fork
-        self._fork.setPositionForNumber(3, self._direction)
+            # Positioning fork
+            self._fork.setPositionForNumber(4, self._direction)
 
-        # Smash that fuckin' button
-        self._motor.setVelocityLeft(20)
-        self._motor.setVelocityRight(20)
-        sleep(0.7)
-        # Step back
-        self._util.driveByTime(1000, -40)
-        # Reset position of fork
-        self._fork.setPositionForNumber(0, self._direction)
+            # Smash that fuckin' button
+            self._motor.setVelocityLeft(20)
+            self._motor.setVelocityRight(20)
+            sleep(0.7)
 
-        # Continue...
-        self._fsm.buttonPressed()
+            # Step back
+            self._util.driveByTime(1000, -40)
+
+            # Continue...
+            self._fsm.buttonPressed()
+        except:
+            self._fork.stopMovement()
+            self._motor.stop()

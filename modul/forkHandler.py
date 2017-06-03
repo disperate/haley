@@ -29,7 +29,8 @@ class Fork():
     def __init__(self, i2cHandler):
         self.pi = None
         self.i2cHandler = i2cHandler
-        self.buttonDistanceList = [100, 54, 118, 33, 89, 148, 100] # Don't Touch!
+        self.buttonDistanceListLeft = [95, 47, 111, 24, 80, 143]
+        self.buttonDistanceListRight = [91, 150, 85, 28, 117, 51]
         self.initFork()
 
     # Funktions
@@ -101,64 +102,71 @@ class Fork():
 
 
     def setPositionForNumber(self, number, drivingDirection):
-        self._printDebug("Enter setPositionForNumber()...")
-        if(-1 < number and number < 6):
-            self._printDebug("Number is {}".format(number))
-            if(drivingDirection is direction.RIGHT): # Left parcour
-                self._printDebug("Direction is RIGHT (Left parcour)")
-                desiredDistance = self.buttonDistanceList[number]
-                currDistance = self.i2cHandler.getDistanceLeftFront()
+        try:
+            self._printDebug("Enter setPositionForNumber()...")
+            if (-1 < number and number < 6):
+                self._printDebug("Number is {}".format(number))
+                if (drivingDirection is direction.RIGHT):  # Left parcour
+                    self._printDebug("Direction is RIGHT (Left parcour)")
+                    desiredDistance = self.buttonDistanceListLeft[number]
+                    currDistance = self.i2cHandler.getDistanceLeftFront()
 
-                self._printDebug("Desired distance is: {}mm".format(desiredDistance))
-                self._printDebug("Current distance LF before: {}mm".format(self.i2cHandler.getDistanceLeftFront()))
-                if(desiredDistance < currDistance):
-                    self.moveLeft()
-                    self._printDebug("Move fork to the left...")
+                    self._printDebug("Desired distance is: {}mm".format(desiredDistance))
+                    self._printDebug("Current distance LF before: {}mm".format(self.i2cHandler.getDistanceLeftFront()))
+                    if (desiredDistance < currDistance):
+                        self.moveLeft()
+                        self._printDebug("Move fork to the left...")
 
-                    while (desiredDistance < currDistance):
-                        sleep(0.05)
-                        currDistance = self.i2cHandler.getDistanceLeftFront()
+                        while (desiredDistance < currDistance):
+                            sleep(0.05)
+                            currDistance = self.i2cHandler.getDistanceLeftFront()
 
-                    self.stopMovement()
-                else:
-                    self.moveRight()
-                    self._printDebug("Move fork to the right...")
-                    while (desiredDistance > currDistance):
-                        sleep(0.05)
-                        currDistance = self.i2cHandler.getDistanceLeftFront()
+                        self.stopMovement()
+                    else:
+                        self.moveRight()
+                        self._printDebug("Move fork to the right...")
+                        while (desiredDistance > currDistance):
+                            sleep(0.05)
+                            currDistance = self.i2cHandler.getDistanceLeftFront()
 
-                    self.stopMovement()
+                        self.stopMovement()
 
-                self._printDebug("Current distance LF after: {}mm".format(self.i2cHandler.getDistanceLeftFront()))
-                return True
+                    self._printDebug("Current distance LF after: {}mm".format(self.i2cHandler.getDistanceLeftFront()))
+                    return True
 
-            # Not tested!
-            if (drivingDirection is direction.LEFT): # Right parcour
-                self._printDebug("Direction is LEFT (Right parcour)")
-                desiredDistance = self.buttonDistanceList[6 - number]
-                currDistance = self.i2cHandler.getDistanceRightFront()
-                self._printDebug("Desired distance is: {}mm".format(desiredDistance))
-                self._printDebug("Current distance RF before: {}mm".format(self.i2cHandler.getDistanceRightFront()))
-                if(desiredDistance < currDistance):
-                    self.moveRight()
-                    self._printDebug("Move fork to the left...")
+                if (drivingDirection is direction.LEFT):  # Right parcour
+                    self._printDebug("Direction is LEFT (Right parcour)")
+                    desiredDistance = self.buttonDistanceListRight[number]
+                    currDistance = self.i2cHandler.getDistanceRightFront()
+                    self._printDebug("Desired distance is: {}mm".format(desiredDistance))
+                    self._printDebug("Current distance RF before: {}mm".format(self.i2cHandler.getDistanceRightFront()))
+                    if (desiredDistance < currDistance):
+                        self.moveRight()
+                        self._printDebug("Move fork to the left...")
 
-                    while (desiredDistance < currDistance):
-                        sleep(0.05)
-                        currDistance = self.i2cHandler.getDistanceRightFront()
+                        while (desiredDistance < currDistance):
+                            sleep(0.05)
+                            currDistance = self.i2cHandler.getDistanceRightFront()
 
-                    self.stopMovement()
-                else:
-                    self.moveLeft()
-                    self._printDebug("Move for to the right...")
-                    while (desiredDistance > currDistance):
-                        sleep(0.05)
-                        currDistance = self.i2cHandler.getDistanceRightFront()
+                        self.stopMovement()
+                    else:
+                        self.moveLeft()
+                        self._printDebug("Move for to the right...")
+                        while (desiredDistance > currDistance):
+                            sleep(0.05)
+                            currDistance = self.i2cHandler.getDistanceRightFront()
 
-                    self.stopMovement()
+                        self.stopMovement()
 
-                self._printDebug("Current distance LF after: {}mm".format(self.i2cHandler.getDistanceRightFront()))
-                return True
+                    self._printDebug("Current distance LF after: {}mm".format(self.i2cHandler.getDistanceRightFront()))
+                    return True
+            else:
+                self._printDebug("{} is not a valid number!".format(number))
+        except Exception as err:
+            self._printDebug("...Exception --> " + str(err))
+            self.stopMovement()
+            self._printDebug("setPositionForNumber() --> Emergency stop!")
+            return False
 
         return False
 

@@ -8,7 +8,7 @@ from time import sleep
 
 motorDriver = None
 handler = None
-testPattern = 2
+testPattern = 1
 
 try:
     handler = i2cHandler.I2cHandler()
@@ -16,7 +16,7 @@ try:
 
     motorDriver = motor.motor()
     motorDriver.start()
-    #motorDriver.startLogging()
+    motorDriver.startLogging()
 
     utilities = drivingUtilities.DrivingUtilities(handler, motorDriver)
 
@@ -43,9 +43,40 @@ try:
         utilities.accelerate(100)
         utilities.approachWallAndStop(10)
 
+    # Acceleration and stop test pattern
+    if(testPattern == 3):
+        sleep(0.2)
+        utilities.accelerate(10)
+        sleep(0.2)
+        utilities.accelerate(40)
+        sleep(0.2)
+        utilities.accelerate(100)
+        sleep(0.2)
+        utilities.accelerate(-70)
+        sleep(0.2)
+        utilities.stop()
+        sleep(0.2)
+        utilities.accelerate(-70)
+        sleep(0.2)
+        utilities.stop()
+
+    # DriveByTime Test
+    if (testPattern == 4):
+        sleep(0.2)
+        utilities.driveByTime(150, 100)
+        sleep(0.2)
+        utilities.driveByTime(300, 100)
+        sleep(0.2)
+        utilities.driveByTime(600, 100)
+        sleep(0.2)
+        utilities.driveByTime(900, 100)
+        sleep(0.2)
+        utilities.driveByTime(1200, 100)
+        sleep(0.2)
+
 
     utilities.stop()
-    #motorDriver.stopLogging()
+    motorDriver.stopLogging()
     motorDriver.terminate()
     handler.terminate()
 
