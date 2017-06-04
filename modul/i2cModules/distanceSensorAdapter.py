@@ -45,7 +45,7 @@ SENSOR_FRONT_OFFSET                     = 3
 SENSOR_RIGHT_FRONT                      = 3
 SENSOR_RIGHT_FRONT_SHUTDOWN_BCM_PIN_NR  = 26 # Test OK
 SENSOR_RIGHT_FRONT_I2C_ADDRESS          = 0x33
-SENSOR_RIGHT_FRONT_OFFSET               = -8        # 03.06.17 us: changed from -3 to -8
+SENSOR_RIGHT_FRONT_OFFSET               = -6        # 03.06.17 us: changed from -3 to -6
 
 SENSOR_RIGHT_BACK                       = 4
 SENSOR_RIGHT_BACK_SHUTDOWN_BCM_PIN_NR   = 27 # Test OK

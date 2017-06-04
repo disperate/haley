@@ -55,7 +55,7 @@ class PID:
         self.pid_dist.sample_time = 0.1
         self.soll_angle = 0
 
-        self.pid_angle = pid.PID(1.5, 0, 0)
+        self.pid_angle = pid.PID(0.8, 0, 0)   # 03.06.17 us: P changed from 1.5 to 0.8
         self.pid_angle.setWindup(0.5)
         self.pid_angle.sample_time = 0.1
 

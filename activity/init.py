@@ -47,6 +47,15 @@ class initActivity(object):
             self.initFork()  # ja, Tastendrücker initialisieren
             self.getDistOffset()  # Offsets der Sensoren ermitteln
 
+        while(self._pi.read(config.BUTTON)):
+            print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
+                self._i2c.getDistanceLeftBack(),
+                self._i2c.getDistanceLeftFront(),
+                self._i2c.getDistanceFront(),
+                self._i2c.getDistanceRightFront(),
+                self._i2c.getDistanceRightBack()))
+            sleep(0.11)
+
         fsm.setupComplete()  # Setup beenden
 
     # Wartet solange Kippschalter auf Konfig (Mittelstellung) bis die Taste zwischen MIN_TIME und MAX_TIME betätigt wird.
@@ -79,27 +88,34 @@ class initActivity(object):
         moveButtonSlider = True
         while moveButtonSlider:
 
-            if (self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()):
-                if (self._i2c.getDistanceLeftFront() > self._i2c.getDistanceRightFront()):
+            left = self._i2c.getDistanceLeftFront()
+            right = self._i2c.getDistanceRightFront()
+            if abs(left - right) < 5:
+                self._fork.stopMovement()
+                result = self.getMeanDist(4)
+                left = result[distanceSensorAdapter.SENSOR_LEFT_FRONT]
+                right = result[distanceSensorAdapter.SENSOR_RIGHT_FRONT]
+            if abs(left - right):
+                if (left > right):
                     self._fork.moveLeft()
-                    if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
-                        sleep(0.01)
+                    if (abs(left - right) < 5):
+                        sleep(abs(left - right) * 0.1)
                         self._fork.stopMovement()
-                        sleep(0.02)
                 else:
                     self._fork.moveRight()
-                    if (abs(self._i2c.getDistanceLeftFront() - self._i2c.getDistanceRightFront()) < 5):
-                        sleep(0.01)
+                    if (abs(left - right) < 5):
+                        sleep(abs(left - right) * 0.1)
                         self._fork.stopMovement()
-                        sleep(0.02)
             else:
                 self._fork.stopMovement()
                 result = self.getMeanDist(8)
                 if abs(result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - result[distanceSensorAdapter.SENSOR_RIGHT_FRONT]) < 4:
-                    print("LEFTFRONT:  " + str(self._i2c.getDistanceLeftFront()))
-                    print("RIGHTFRONT: " + str(self._i2c.getDistanceRightFront()))
-                    print("LEFTBACK:   " + str(self._i2c.getDistanceLeftBack()))
-                    print("RIGHTBACK:  " + str(self._i2c.getDistanceRightBack()))
+                    print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
+                        self._i2c.getDistanceLeftBack(),
+                        self._i2c.getDistanceLeftFront(),
+                        self._i2c.getDistanceFront(),
+                        self._i2c.getDistanceRightFront(),
+                        self._i2c.getDistanceRightBack()))
                     moveButtonSlider = False
             sleep(0.01)
 

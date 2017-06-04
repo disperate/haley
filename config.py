@@ -11,4 +11,4 @@ dedectWallsDistanceThreshold = 250
 loseWallsDistanceThreshold = 200
 
 blindDriveVelocity = 80
-guidedDriveVelocity = 90
+guidedDriveVelocity = 80
