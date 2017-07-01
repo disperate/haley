@@ -57,7 +57,7 @@ class camera(Thread):
 
                 if self._dedectGreenLight:
 
-                    self.isGreen = self._greenLightDedection.dedectAmpel(output)
+                    self.isGreen = self._greenLightDedection.greenLightDedected(output)
                     if self.isGreen:
                         self.stopGreenlightDedection()
 

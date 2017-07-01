@@ -35,27 +35,18 @@ class kerasGreenLightDedection:
 
         return model
 
-    def crosslightDetection(self, image):
-        x = image.array
-        x = x.reshape((1,) + x.shape)
-        x = x * (1. / 255)
+    def greenLightDedected(self, img):
+        # Image preprocessing
+        imgProcessed = img.array
+        imgProcessed = imgProcessed.reshape((1,) + imgProcessed.shape)
+        imgProcessed = imgProcessed * (1. / 255)
         with self.graph.as_default():
-            prediction = around(self._cossLightModel.predict(x), 3)[0][0]
+            prediction = around(self._cossLightModel.predict(imgProcessed), 3)[0][0]
 
-        # display.zero()
-        print(prediction)
+        print("Crosslight Prediction: " + str(prediction))
         if prediction < 0.1:
-            print("go")
+            print("Green light found")
             return True
         else:
-            print("no green light")
-            return False
-        image.truncate(0)
-
-    def dedectAmpel(self, img):
-        if self.crosslightDetection(img):
-            print("Let's go. It's Green. GREEN!")
-            return True
-        else:
-            print("Not green...")
+            print("No green light found")
             return False
