@@ -31,6 +31,9 @@ class kerasGreenLightDedection:
                       metrics=['accuracy'])
 
         model.load_weights('/home/pi/haley/haleyKeras/crosslight.h5')
+
+        # Save graph to prevent problems with multithreading
+        # https://github.com/fchollet/keras/issues/2397
         self.graph = tf.get_default_graph()
 
         return model
@@ -40,6 +43,9 @@ class kerasGreenLightDedection:
         imgProcessed = img.array
         imgProcessed = imgProcessed.reshape((1,) + imgProcessed.shape)
         imgProcessed = imgProcessed * (1. / 255)
+
+        # Load graph to prevent problems with multithreading
+        # https://github.com/fchollet/keras/issues/2397
         with self.graph.as_default():
             prediction = around(self._cossLightModel.predict(imgProcessed), 3)[0][0]
 
