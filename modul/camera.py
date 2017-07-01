@@ -56,9 +56,6 @@ class camera(Thread):
                 self._camera.capture(output, 'rgb')
 
                 if self._dedectGreenLight:
-                    # image = np.empty((128 * 128 * 3,), dtype=np.uint8)
-                    # self._camera.capture(image, 'bgr')
-                    # image = image.reshape((128, 128, 3))
 
                     self.isGreen = self._greenLightDedection.dedectAmpel(output)
                     if self.isGreen:
