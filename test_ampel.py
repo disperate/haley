@@ -1,6 +1,4 @@
-
 from modul import camera
-from time import sleep
 
 try:
     camera = camera.camera()

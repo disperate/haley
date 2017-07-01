@@ -1,24 +1,30 @@
-import time
 from threading import Thread
+from time import sleep
 
-import numpy as np
 import picamera
+from picamera import array
 
-import modul.greenLightDedection
+import modul.kerasGreenLightDedection
 
 
 class camera(Thread):
     def __init__(self):
         super().__init__()
+
+        image_height = 128
+        image_width = 128
+
         self._running = True
         self._dedectGreenLight = False
         self._dedectRomanNumber = False
         self._romanNumber = None
         self.isGreen = False
+        self._greenLightDedection = modul.kerasGreenLightDedection.kerasGreenLightDedection(image_height, image_width)
+
         self._camera = picamera.PiCamera()
-        self._camera.resolution = (640, 480)
-        self._camera.framerate = 24
-        self._greenLightDedection = modul.greenLightDedection.greenLightDedection()
+        self._camera.resolution = (image_height, image_width)
+        self._camera.framerate = 10
+        self._camera.exposure_mode = 'sports'
 
     def startGreenlightDedection(self):
         self._dedectGreenLight = True
@@ -44,16 +50,22 @@ class camera(Thread):
         self._running = False
 
     def run(self):
-        while (self._running):
-            image = np.empty((480 * 640 * 3,), dtype=np.uint8)
-            self._camera.capture(image, 'bgr')
-            image = image.reshape((480, 640, 3))
 
-            if self._dedectGreenLight:
-                self.isGreen = self._greenLightDedection.dedectAmpel(image)
-                if self.isGreen:
-                    self.stopGreenlightDedection()
+        with array.PiRGBArray(self._camera) as output:
+            while (self._running):
+                self._camera.capture(output, 'rgb')
 
-            if self._dedectRomanNumber:
-                print("looking for roman nummber")
-            time.sleep(0.01)
+                if self._dedectGreenLight:
+                    # image = np.empty((128 * 128 * 3,), dtype=np.uint8)
+                    # self._camera.capture(image, 'bgr')
+                    # image = image.reshape((128, 128, 3))
+
+                    self.isGreen = self._greenLightDedection.dedectAmpel(output)
+                    if self.isGreen:
+                        self.stopGreenlightDedection()
+
+                if self._dedectRomanNumber:
+                    print("looking for roman nummber")
+
+                output.truncate(0)
+                sleep(0.01)
