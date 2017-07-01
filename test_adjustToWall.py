@@ -1,10 +1,7 @@
-from modul import motor
-from modul import i2cHandler
 from common import drivingUtilities
-from haleyenum import  direction
-
-
-from time import sleep
+from haleyenum import direction
+from modul import i2cHandler
+from modul import motor
 
 motorDriver = None
 handler = None

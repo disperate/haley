@@ -1,6 +1,7 @@
+from time import sleep
+
 from common import velocityUtilities
 from modul import i2cHandler
-from time import sleep
 from modul import motor
 
 try:

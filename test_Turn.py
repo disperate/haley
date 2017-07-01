@@ -1,8 +1,7 @@
-from modul import motor
-from modul import i2cHandler
-import config
-
 from time import sleep
+
+from modul import i2cHandler
+from modul import motor
 
 try:
     motor = motor.motor()
@@ -27,10 +26,9 @@ try:
     while (True):
         currentAngle = i2c.currYaw
 
-        if(endAngleUnder - currentAngle < 20):
+        if (endAngleUnder - currentAngle < 20):
             motor.setVelocityLeft(20)
             motor.setVelocityRight(-20)
-
 
         if currentAngle > endAngleUpper:
             motor.setVelocityLeft(-20)
@@ -38,11 +36,11 @@ try:
 
         print("\033c")
         print("Start Angle:" + str(startAngle))
-        print("endAngleUnder" +  str(endAngleUnder))
-        print("endAngleUpper" + str( endAngleUpper))
-        print("Current Angle:" +  str(currentAngle))
+        print("endAngleUnder" + str(endAngleUnder))
+        print("endAngleUpper" + str(endAngleUpper))
+        print("Current Angle:" + str(currentAngle))
 
-        if(currentAngle > endAngleUnder and currentAngle < endAngleUpper):
+        if (currentAngle > endAngleUnder and currentAngle < endAngleUpper):
             break
 
         sleep(0.1)

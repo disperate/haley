@@ -1,9 +1,9 @@
-from modul import motor
-from modul import i2cHandler
-from common import pid
-import config
-
 from time import sleep
+
+import config
+from common import pid
+from modul import i2cHandler
+from modul import motor
 
 controller = None
 
@@ -26,9 +26,8 @@ try:
             motor.setVelocityLeft(config.guidedDriveVelocity * VelocityLeft_proz)
             motor.setVelocityRight(config.guidedDriveVelocity)
 
-            print("Reg. Distanz: Soll: 0.000mm, Ist: " + str(round(ist_dist,3)) + "mm, Fehler: " +
-                  str(round(ist_dist,3)) + "mm, Out: " + str(round(100 * DeltaVelocityLeft_proz,3)) + "%")
-
+            print("Reg. Distanz: Soll: 0.000mm, Ist: " + str(round(ist_dist, 3)) + "mm, Fehler: " +
+                  str(round(ist_dist, 3)) + "mm, Out: " + str(round(100 * DeltaVelocityLeft_proz, 3)) + "%")
 
         sleep(0.0001)
 

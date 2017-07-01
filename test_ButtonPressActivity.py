@@ -1,13 +1,10 @@
-from modul import motor
-from modul import i2cHandler
-from common import drivingUtilities
-from modul import forkHandler
-from haleyenum.direction import direction
-import pigpio
-
-import config
-
 from time import sleep
+
+from common import drivingUtilities
+from haleyenum.direction import direction
+from modul import forkHandler
+from modul import i2cHandler
+from modul import motor
 
 motorDriver = None
 i2c = None
@@ -25,11 +22,11 @@ try:
     fork = forkHandler.Fork(i2c)
 
     # Set manually fork position
-    if(testPattern == 1):
+    if (testPattern == 1):
         fork.setForkPositionByManual()
 
     # Set fork position test
-    if(testPattern == 2):
+    if (testPattern == 2):
         fork.setPositionForNumber(5, direction.RIGHT)
         sleep(3)
 
@@ -48,11 +45,10 @@ try:
         fork.setPositionForNumber(0, direction.LEFT)
         sleep(1)
 
-
     # Test button press routine
-    if(testPattern == 4):
+    if (testPattern == 4):
         sleep(1)
-        utilities.driveByTime(1500,-50)
+        utilities.driveByTime(1500, -50)
         # Startgeschwindigkeit
         utilities.accelerate(100)
         # Fahre bis 30mm an die Wand
@@ -83,6 +79,3 @@ except:
     i2c.terminate()
     print("Aaaaaargh!")
     raise
-
-
-

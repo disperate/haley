@@ -1,26 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#------------------------------------------------------------------------------
-# Autor:        Adrian Kauz
-#------------------------------------------------------------------------------
-# Class:        I2cHandlerTest
-# Description:  For testing the I2C-Handler
-#
-#------------------------------------------------------------------------------
-
-# Imports
-from modul import i2cHandler
 from time import sleep
+
+from modul import i2cHandler
 
 handler = None
 
-# Main
 try:
     handler = i2cHandler.I2cHandler()
     handler.start()
     handler.setRomanNumber("3")
 
-    while(True):
+    while (True):
         sleep(0.5)
         print("\033c")
         print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(

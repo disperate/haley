@@ -1,10 +1,10 @@
-from modul import motor
-from modul import i2cHandler
-from common import pid
-import config
 from math import atan
-
 from time import sleep
+
+import config
+from common import pid
+from modul import i2cHandler
+from modul import motor
 
 controller = None
 
@@ -31,11 +31,11 @@ try:
     regW_out_str = ""
 
     cnt = 1
-    while(True):
+    while (True):
         print("\033c")
         print("Wait for Distance-Data (Try " + str(cnt) + "): " + \
-             str(i2c.getDistanceLeftFront()) +", "+ str(i2c.getDistanceRightFront()) +", "+\
-             str(i2c.getDistanceLeftBack()) +", "+ str(i2c.getDistanceLeftBack()))
+              str(i2c.getDistanceLeftFront()) + ", " + str(i2c.getDistanceRightFront()) + ", " + \
+              str(i2c.getDistanceLeftBack()) + ", " + str(i2c.getDistanceLeftBack()))
         if (i2c.getDistanceLeftFront() > 0):
             if (i2c.getDistanceLeftBack() > 0):
                 if (i2c.getDistanceRightFront() > 0):
@@ -46,27 +46,27 @@ try:
 
     while (True):
         ist_dist = i2c.getDistanceLeftBack() - i2c.getDistanceRightBack()
-        ist_angle = atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack()-0.5)) / 180)
+        ist_angle = atan((i2c.getDistanceLeftFront() - (i2c.getDistanceLeftBack() - 0.5)) / 180)
         pid_dist.SetPoint = 0.0
         if pid_dist.update(ist_dist):
             soll_angle = pid_dist.output
             pid_angle.SetPoint = soll_angle
-            regD_out_str = str(round(pid_dist.SetPoint, 3)) +"; " + str(round(ist_dist, 3)) + "; " +\
-                           str(round(pid_dist.SetPoint-ist_dist, 3)) +"; "+ str(round(soll_angle, 1)) +"; ;"
+            regD_out_str = str(round(pid_dist.SetPoint, 3)) + "; " + str(round(ist_dist, 3)) + "; " + \
+                           str(round(pid_dist.SetPoint - ist_dist, 3)) + "; " + str(round(soll_angle, 1)) + "; ;"
 
         if pid_angle.update(ist_angle):
             DeltaVelocityLeft_proz = pid_angle.output
             VelocityLeft_proz = 1 + DeltaVelocityLeft_proz
             motor.setVelocityLeft(config.guidedDriveVelocity)
             motor.setVelocityRight(config.guidedDriveVelocity * VelocityLeft_proz)
-            #motor.setVelocityLeft(config.guidedDriveVelocity * -DeltaVelocityLeft_proz)
-            #motor.setVelocityRight(config.guidedDriveVelocity * DeltaVelocityLeft_proz)
-            regW_out_str = str(round(soll_angle, 3)) +" ; "+ str(round(ist_angle, 3)) +" ; "+\
-                           str(round(soll_angle-ist_angle, 3)) +" ; "+\
-                           str(round(DeltaVelocityLeft_proz,5))
+            # motor.setVelocityLeft(config.guidedDriveVelocity * -DeltaVelocityLeft_proz)
+            # motor.setVelocityRight(config.guidedDriveVelocity * DeltaVelocityLeft_proz)
+            regW_out_str = str(round(soll_angle, 3)) + " ; " + str(round(ist_angle, 3)) + " ; " + \
+                           str(round(soll_angle - ist_angle, 3)) + " ; " + \
+                           str(round(DeltaVelocityLeft_proz, 5))
 
-            #print("\033c")
-            print(str(round(pid_dist.current_time,3)) +"; "+ regD_out_str + regW_out_str)
+            # print("\033c")
+            print(str(round(pid_dist.current_time, 3)) + "; " + regD_out_str + regW_out_str)
             regD_out_str = ""
             regW_out_str = ""
 

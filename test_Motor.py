@@ -1,20 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#------------------------------------------------------------------------------
-# Autor:        Adrian Kauz
-#------------------------------------------------------------------------------
-# Class:        motorControllerTest
-# Description:  For testing the motor controller -_-
-#
-#------------------------------------------------------------------------------
-
-# Imports
-from modul import motor
 from time import sleep
+
+from modul import motor
 
 controller = None
 
-# Main
 try:
     controller = motor.motor()
     controller.start()

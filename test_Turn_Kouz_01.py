@@ -1,8 +1,7 @@
-from modul import motor
-from modul import i2cHandler
-import config
-
 from time import sleep
+
+from modul import i2cHandler
+from modul import motor
 
 try:
     motor = motor.motor()
@@ -19,15 +18,15 @@ try:
 
     i2c.resetRelativeYaw()
 
-    if(angle < 0):
+    if (angle < 0):
         # Turn left
         print("Start: CurrentRelative -> {}, Gyro --> {}".format(i2c.currRelativeYaw, i2c.getCurrYaw()))
-        #currVelocity = velocity_max
-        while(True):
+        # currVelocity = velocity_max
+        while (True):
             currDelta = abs(angle) - abs(i2c.currRelativeYaw)
             # Anfahren
-            if(currDelta > (abs(angle) - 15)):
-                if(currVelocity < velocity_max):
+            if (currDelta > (abs(angle) - 15)):
+                if (currVelocity < velocity_max):
                     currVelocity = currVelocity + 0.025
                     motor.setVelocityLeft(-currVelocity)
                     motor.setVelocityRight(currVelocity)
@@ -50,7 +49,7 @@ try:
         print("Stop: CurrentRelative -> {}, Gyro --> {}".format(i2c.currRelativeYaw, i2c.getCurrYaw()))
     else:
         # Turn right
-        while(True):
+        while (True):
             pass
 
     motor.terminate()

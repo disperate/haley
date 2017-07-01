@@ -1,10 +1,8 @@
-from modul import motor
-from modul import i2cHandler
-from common import drivingUtilities
-
-import config
-
 from time import sleep
+
+from common import drivingUtilities
+from modul import i2cHandler
+from modul import motor
 
 motorDriver = None
 handler = None
@@ -21,8 +19,8 @@ try:
     utilities = drivingUtilities.DrivingUtilities(handler, motorDriver)
 
     # Simple drive forward, turn, forward, turn
-    if(testPattern == 1):
-        for x in range(0,1):
+    if (testPattern == 1):
+        for x in range(0, 1):
             sleep(0.5)
             utilities.accelerate(60)
             sleep(1)
@@ -37,14 +35,14 @@ try:
             utilities.turn(180)
 
     # Approach wall test
-    if(testPattern == 2):
+    if (testPattern == 2):
         sleep(0.5)
         utilities.driveByTime(2000, -80)
         utilities.accelerate(100)
         utilities.approachWallAndStop(10)
 
     # Acceleration and stop test pattern
-    if(testPattern == 3):
+    if (testPattern == 3):
         sleep(0.2)
         utilities.accelerate(10)
         sleep(0.2)
@@ -73,7 +71,6 @@ try:
         sleep(0.2)
         utilities.driveByTime(1200, 100)
         sleep(0.2)
-
 
     utilities.stop()
     motorDriver.stopLogging()
