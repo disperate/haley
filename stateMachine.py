@@ -26,7 +26,7 @@ class Haley(object):
         {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen', 'on_exit' : 'exitWaitForGreen'},
         {'name': 'blindDrive','on_enter': 'initBlindDrive', 'on_exit' : 'exitBlindDrive'},
         {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive', 'on_exit' : 'exitGuidedDrive'},
-        {'name': 'turning', 'on_enter': 'initTurning'},
+        {'name': 'turning', 'on_enter': 'initTurning', 'on_exit': 'exitTurning'},
         {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
         'end']
 
@@ -97,6 +97,7 @@ class Haley(object):
 
     def exitWaitForGreen(self):
         self.cameraModul.stopGreenlightDedection()
+        self.cameraModul.startRomanNumberDedection()
 
 
     def initBlindDrive(self):
@@ -125,8 +126,12 @@ class Haley(object):
         self.guidedDriveActivity.terminate()
 
     def initTurning(self):
+        self.cameraModul.stopRomanNumberDedection()
         turnThread = turn.turnActivity(self, self.motorModul, self.i2c)
         turnThread.start()
+
+    def exitTurning(self):
+        self.cameraModul.startRomanNumberDedection()
 
     def initButtonDrive(self):
         buttonPresser = buttonPress.buttonPressActivity(self, self.motorModul, self.i2c)
