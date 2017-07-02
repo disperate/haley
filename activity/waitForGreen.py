@@ -1,4 +1,5 @@
 import time
+
 import config
 
 
@@ -8,7 +9,7 @@ class waitForGreenActivity(object):
         print("waiting for green...")
         cameraModul.startGreenlightDedection()
 
-        while (not cameraModul.isGreen and not self.timeout()):
+        while not cameraModul.isGreen and not self.timeout():
             time.sleep(0.01)
 
         cameraModul.stopGreenlightDedection()

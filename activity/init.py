@@ -18,22 +18,20 @@
 #
 # ------------------------------------------------------------------------------
 
-# Imports
 import time
 from time import sleep
-from modul import fork
-from modul.i2cModules import distanceSensorAdapter
 
 import pigpio
 
 import config
+from modul import fork
+from modul.i2cModules import distanceSensorAdapter
 
 # Constants
 MAX_TIME = 4.0
 MIN_TIME = 3.0
 
 
-#
 class initActivity(object):
     # *** Konstruktor ***
     def __init__(self, fsm, i2c):
@@ -47,7 +45,7 @@ class initActivity(object):
             self.initFork()  # ja, Tastendrücker initialisieren
             self.getDistOffset()  # Offsets der Sensoren ermitteln
 
-        while(self._pi.read(config.BUTTON)):
+        while (self._pi.read(config.BUTTON)):
             print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
                 self._i2c.getDistanceLeftBack(),
                 self._i2c.getDistanceLeftFront(),
@@ -109,7 +107,8 @@ class initActivity(object):
             else:
                 self._fork.stopMovement()
                 result = self.getMeanDist(8)
-                if abs(result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - result[distanceSensorAdapter.SENSOR_RIGHT_FRONT]) < 4:
+                if abs(result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - result[
+                    distanceSensorAdapter.SENSOR_RIGHT_FRONT]) < 4:
                     print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
                         self._i2c.getDistanceLeftBack(),
                         self._i2c.getDistanceLeftFront(),
@@ -126,26 +125,26 @@ class initActivity(object):
         sumRightBack = 0
         sumLeftBack = 0
         for i in range(0, anzMess):
-            sumLeftBack   += self._i2c.getDistanceLeftBack()
-            sumLeftFront  += self._i2c.getDistanceLeftFront()
-            sumFront      += self._i2c.getDistanceFront()
-            sumRightBack  += self._i2c.getDistanceRightBack()
+            sumLeftBack += self._i2c.getDistanceLeftBack()
+            sumLeftFront += self._i2c.getDistanceLeftFront()
+            sumFront += self._i2c.getDistanceFront()
+            sumRightBack += self._i2c.getDistanceRightBack()
             sumRightFront += self._i2c.getDistanceRightFront()
             sleep(0.11)
 
-        return [sumLeftBack/anzMess, sumLeftFront/anzMess, sumFront/anzMess, sumRightFront/anzMess, sumRightBack/anzMess]
+        return [sumLeftBack / anzMess, sumLeftFront / anzMess, sumFront / anzMess, sumRightFront / anzMess,
+                sumRightBack / anzMess]
 
     def getDistOffset(self):
         result = self.getMeanDist(8)
 
-        #TODO save offsets to i2c Modul
-        offsetLeftFront  = result[distanceSensorAdapter.SENSOR_LEFT_BACK]   - 91
-        offsetLeftBack   = result[distanceSensorAdapter.SENSOR_LEFT_FRONT]  - 90
+        # TODO save offsets to i2c Modul
+        offsetLeftFront = result[distanceSensorAdapter.SENSOR_LEFT_BACK] - 91
+        offsetLeftBack = result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - 90
         offsetRightFront = result[distanceSensorAdapter.SENSOR_RIGHT_FRONT] - 91
-        offsetRightBack  = result[distanceSensorAdapter.SENSOR_RIGHT_BACK]  - 90
+        offsetRightBack = result[distanceSensorAdapter.SENSOR_RIGHT_BACK] - 90
 
         print("OffsetLeftFront:  " + str(offsetLeftFront))
         print("OffsetLeftBack:   " + str(offsetLeftBack))
         print("OffsetRightFront: " + str(offsetRightFront))
         print("OffsetRightBack:  " + str(offsetRightBack))
-

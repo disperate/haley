@@ -1,12 +1,14 @@
 from threading import Thread
 from time import sleep
+
 from common import drivingUtilities
 from modul import fork
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Attention! setPositionForNumber() is tested only for the left parcour!!!
 # Handling for the right side is not tested but may work!
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 class buttonPressActivity(Thread):
     def __init__(self, fsm, motorController, i2cHandler):
