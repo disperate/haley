@@ -1,7 +1,7 @@
 from threading import Thread
 from time import sleep
 from common import drivingUtilities
-from modul import forkHandler
+from modul import fork
 
 #------------------------------------------------------------------------------
 # Attention! setPositionForNumber() is tested only for the left parcour!!!
@@ -16,7 +16,7 @@ class buttonPressActivity(Thread):
         self._motor = motorController
         self._i2c = i2cHandler
         self._util = drivingUtilities.DrivingUtilities(self._i2c, self._motor)
-        self._fork = forkHandler.Fork(self._i2c)
+        self._fork = fork.fork(self._i2c)
 
     def run(self):
         try:

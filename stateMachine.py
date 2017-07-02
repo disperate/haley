@@ -1,33 +1,33 @@
-from transitions import Machine
 from threading import Thread
 
-from modul import display
-from modul import camera
-from modul import buttonpresser
-from modul import motor
-from modul import i2cHandler
-from activity import init
-from activity import ready
-from activity import waitForGreen
+from transitions import Machine
+
 from activity import blindDrive
+from activity import buttonPress
 from activity import dedectWalls
 from activity import guidedDrive
+from activity import init
 from activity import loseWalls
-from activity import turn
-from activity import buttonPress
 from activity import loseWallsOneSide
+from activity import ready
+from activity import turn
+from activity import waitForGreen
+from modul import camera
+from modul import display
+from modul import i2cHandler
+from modul import motor
+
 
 class Haley(object):
-
     states = [
         'init',
         {'name': 'setup', 'on_enter': 'initSetup'},
         {'name': 'ready', 'on_enter': 'initReady'},
-        {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen', 'on_exit' : 'exitWaitForGreen'},
-        {'name': 'blindDrive','on_enter': 'initBlindDrive', 'on_exit' : 'exitBlindDrive'},
-        {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive', 'on_exit' : 'exitGuidedDrive'},
+        {'name': 'waitForGreen', 'on_enter': 'initWaitForGreen', 'on_exit': 'exitWaitForGreen'},
+        {'name': 'blindDrive', 'on_enter': 'initBlindDrive', 'on_exit': 'exitBlindDrive'},
+        {'name': 'guidedDrive', 'on_enter': 'initGuidedDrive', 'on_exit': 'exitGuidedDrive'},
         {'name': 'turning', 'on_enter': 'initTurning', 'on_exit': 'exitTurning'},
-        {'name': 'buttonDrive','on_enter': 'initButtonDrive'},
+        {'name': 'buttonDrive', 'on_enter': 'initButtonDrive'},
         'end']
 
     direction = None
@@ -67,7 +67,6 @@ class Haley(object):
         self.machine.add_transition(
             trigger='buttonPressed', source='buttonDrive', dest='end')
 
-
     def initSetup(self):
 
         ##init all modules
@@ -75,9 +74,6 @@ class Haley(object):
 
         self.cameraModul = camera.camera()
         self.cameraModul.start()
-
-        self.buttonpresser = buttonpresser.buttonpresser()
-        self.buttonpresser.start()
 
         self.motorModul = motor.motor()
         self.motorModul.start()
@@ -88,7 +84,7 @@ class Haley(object):
         i = init.initActivity(self, self.i2c)
 
     def initReady(self):
-        t = Thread(target=ready.readyActivity, args = (self,))
+        t = Thread(target=ready.readyActivity, args=(self,))
         t.start()
 
     def initWaitForGreen(self):
@@ -98,7 +94,6 @@ class Haley(object):
     def exitWaitForGreen(self):
         self.cameraModul.stopGreenlightDedection()
         self.cameraModul.startRomanNumberDedection()
-
 
     def initBlindDrive(self):
 
@@ -121,7 +116,6 @@ class Haley(object):
             wallsLostThread = Thread(target=loseWalls.loseWallsActivity, args=(self, self.i2c))
             wallsLostThread.start()
 
-
     def exitGuidedDrive(self):
         self.guidedDriveActivity.terminate()
 
@@ -137,10 +131,5 @@ class Haley(object):
         buttonPresser = buttonPress.buttonPressActivity(self, self.motorModul, self.i2c)
         buttonPresser.start()
 
-
     def hasTurned(self):
         return self.turned
-
-
-
-

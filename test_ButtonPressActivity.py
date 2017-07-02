@@ -2,7 +2,7 @@ from time import sleep
 
 from common import drivingUtilities
 from haleyenum.direction import direction
-from modul import forkHandler
+from modul import fork
 from modul import i2cHandler
 from modul import motor
 
@@ -19,7 +19,7 @@ try:
     i2c.start()
 
     utilities = drivingUtilities.DrivingUtilities(i2c, motorDriver)
-    fork = forkHandler.Fork(i2c)
+    fork = fork.fork(i2c)
 
     # Set manually fork position
     if (testPattern == 1):

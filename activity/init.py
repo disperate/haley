@@ -21,7 +21,7 @@
 # Imports
 import time
 from time import sleep
-from modul import forkHandler
+from modul import fork
 from modul.i2cModules import distanceSensorAdapter
 
 import pigpio
@@ -39,7 +39,7 @@ class initActivity(object):
     def __init__(self, fsm, i2c):
         super().__init__()
         self._i2c = i2c
-        self._fork = forkHandler.Fork(self._i2c)
+        self._fork = fork.fork(self._i2c)
         self._pi = pigpio.pi()
 
         if self.waitForButton() > MIN_TIME:  # Schalter auf Konfig und Taste zwischen >4s betätigt

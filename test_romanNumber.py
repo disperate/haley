@@ -1,8 +1,8 @@
 from time import sleep
 
 from modul import camera
-from modul import motor
 from modul import i2cHandler
+from modul import motor
 
 try:
     i2c = i2cHandler.I2cHandler()
@@ -13,7 +13,6 @@ try:
 
     controller = motor.motor()
     controller.start()
-
 
     while True:
         camera.startRomanNumberDedection()
@@ -26,9 +25,7 @@ try:
         controller.setVelocityRight(0.0)
         camera.stopRomanNumberDedection()
 
-
         input("Press Enter to continue...")
-
 
     controller.stop()
 

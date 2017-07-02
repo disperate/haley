@@ -1,31 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Autor:        Adrian Kauz
 # Datum:        2017.05.12
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Class:        ForkHandler
 # Description:  Provides access to the Fork
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #
 #               - BCM 18 (Pin xx) - Forkmotor direction right
 #               - BCM 19 (Pin xx) - Forkmotor direction left
 #
 # ToDo:         - Test "setPositionForNumber()" for right parcour!
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# Imports
-import pigpio
-from threading import Thread
-from haleyenum.direction import direction
 from time import sleep
 
+import pigpio
+
+from haleyenum.direction import direction
+
 # Constants
-BCM_PIN_NR_FORK_MOT_RIGHT   = 18
-BCM_PIN_NR_FORK_MOT_LEFT    = 19
+BCM_PIN_NR_FORK_MOT_RIGHT = 18
+BCM_PIN_NR_FORK_MOT_LEFT = 19
 THREAD_SLEEP_MS = 10
 
-class Fork():
+
+class fork():
     def __init__(self, i2cHandler):
         self.pi = None
         self.i2cHandler = i2cHandler
@@ -33,8 +34,6 @@ class Fork():
         self.buttonDistanceListRight = [91, 150, 85, 28, 117, 51]
         self.initFork()
 
-    # Funktions
-    # --------------------------------------------------------------------------
     def initFork(self):
         """
         Description: Initializes fork
@@ -43,7 +42,7 @@ class Fork():
         try:
             self._printDebug("Init fork...")
 
-            if(self.pi is None):
+            if (self.pi is None):
                 self.pi = pigpio.pi()
 
             self.stopMovement()
@@ -54,29 +53,31 @@ class Fork():
             self._printDebug("...failed --> " + str(err))
             return False
 
-
     def setForkPositionByManual(self):
         counter = 0
         self._printDebug("Now you can set the position of the fork with the joystick...")
-        while(True):
+        while (True):
             self.i2cHandler.readSenseHatEvents()
-            if(self.i2cHandler.isJoystickPressed("pressed","left")):
+            if (self.i2cHandler.isJoystickPressed("pressed", "left")):
                 self.moveLeft()
                 continue
 
-            if(self.i2cHandler.isJoystickPressed("pressed","right")):
+            if (self.i2cHandler.isJoystickPressed("pressed", "right")):
                 self.moveRight()
                 continue
 
-            if(self.i2cHandler.isJoystickPressed("released","left") or self.i2cHandler.isJoystickPressed("released","right")):
+            if (self.i2cHandler.isJoystickPressed("released", "left") or self.i2cHandler.isJoystickPressed("released",
+                                                                                                           "right")):
                 self.stopMovement()
                 continue
 
-            if(self.i2cHandler.isJoystickPressed("pressed","middle")):
+            if (self.i2cHandler.isJoystickPressed("pressed", "middle")):
                 break
 
-            if(counter % 20 == 0):
-                self._printDebug("Current distance-values: LF -> {}mm, RF -> {}mm".format(self.i2cHandler.getDistanceLeftFront(), self.i2cHandler.getDistanceRightFront()))
+            if (counter % 20 == 0):
+                self._printDebug(
+                    "Current distance-values: LF -> {}mm, RF -> {}mm".format(self.i2cHandler.getDistanceLeftFront(),
+                                                                             self.i2cHandler.getDistanceRightFront()))
                 counter = 0
 
             counter = counter + 1
@@ -85,21 +86,17 @@ class Fork():
         self.stopMovement()
         self._printDebug("Exit Forkdingens...")
 
-
     def stopMovement(self):
         self.pi.write(BCM_PIN_NR_FORK_MOT_LEFT, 0)
         self.pi.write(BCM_PIN_NR_FORK_MOT_RIGHT, 0)
-
 
     def moveLeft(self):
         self.pi.write(BCM_PIN_NR_FORK_MOT_LEFT, 1)
         self.pi.write(BCM_PIN_NR_FORK_MOT_RIGHT, 0)
 
-
     def moveRight(self):
         self.pi.write(BCM_PIN_NR_FORK_MOT_LEFT, 0)
         self.pi.write(BCM_PIN_NR_FORK_MOT_RIGHT, 1)
-
 
     def setPositionForNumber(self, number, drivingDirection):
         try:
@@ -170,10 +167,8 @@ class Fork():
 
         return False
 
-
     def startAutoCalibration(self):
         pass
-
 
     def _printDebug(self, message):
         if (__debug__):

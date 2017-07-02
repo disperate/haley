@@ -26,7 +26,7 @@ class camera(Thread):
         self.isGreen = False
 
         self._greenLightDedection = modul.kerasGreenLightDedection.kerasGreenLightDedection(image_height, image_width)
-        self._romanNumberDedection = modul.romanNumberDedection.romanNumberDedection(image_height, image_width,i2c)
+        self._romanNumberDedection = modul.romanNumberDedection.romanNumberDedection(image_height, image_width, i2c)
 
         self._camera = picamera.PiCamera()
         self._camera.resolution = (image_height, image_width)

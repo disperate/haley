@@ -1,14 +1,13 @@
 from modul import i2cHandler
-from modul import buttonpresser
 from time import sleep
+from modul import fork
 import config
 
 controller = None
 i2c = None
 
 try:
-    buttonpresser = buttonpresser.buttonpresser()
-    buttonpresser.start()
+    forkHandler = fork.fork()
 
     i2c = i2cHandler.I2cHandler()
     i2c.start()
@@ -20,21 +19,21 @@ try:
         # print("RightFront: " + str(i2c.getDistanceRightFront()))
         if (i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()):
             if (i2c.getDistanceLeftFront() > i2c.getDistanceRightFront()):
-                buttonpresser.left()
+                forkHandler.moveLeft()
                 if (abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()) < 5):
                     sleep(0.01)
-                    buttonpresser.stop()
+                    forkHandler.stopMovement()
                     sleep(0.02)
                 print("shift left")
             else:
-                buttonpresser.right()
+                forkHandler.moveRight()
                 if (abs(i2c.getDistanceLeftFront() - i2c.getDistanceRightFront()) < 5):
                     sleep(0.01)
-                    buttonpresser.stop()
+                    forkHandler.stopMovement()
                     sleep(0.02)
                 print("shift_right")
         else:
-            buttonpresser.stop()
+            forkHandler.stopMovement()
             sumDiff = 0
             # print("Endckeck")
             for i in range(0, 5):
@@ -49,11 +48,9 @@ try:
 
 
 except KeyboardInterrupt:
-    buttonpresser.terminate()
     i2c.terminate()
     print("Goodbye!")
 except:
-    buttonpresser.terminate()
     i2c.terminate()
     print("Aaaaaargh!")
     raise
