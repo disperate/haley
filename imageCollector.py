@@ -37,8 +37,8 @@ try:
         controller.setVelocityLeft(70.0)
         controller.setVelocityRight(70.0)
 
-        camera.capture_sequence([directory + '/image%00002d.jpg' % i for i in range(baseNumber, baseNumber + 6, 1)])
-        baseNumber = baseNumber + 6
+        camera.capture_sequence([directory + '/image%00002d.jpg' % i for i in range(baseNumber, baseNumber + 3, 1)])
+        baseNumber = baseNumber + 3
         print('Current Number: ' + str(baseNumber))
 
         controller.setVelocityLeft(0.0)

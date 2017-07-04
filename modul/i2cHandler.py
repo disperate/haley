@@ -214,15 +214,12 @@ class I2cHandler(Thread):
         Description: Sets the roman number
         Args:        1. Number as integer or string
         """
-        self._printDebug("setRomanNumber() ...enter")
         self.lock.acquire()
         try:
-            self._printDebug("setRomanNumber() ...try")
             self.dispRomanNumber = int(newNumber)
         except:
             self._printDebug("setRomanNumber() ...except")
         finally:
-            self._printDebug("setRomanNumber() ...finally")
             self.threadRefreshDisplay = True
             self.lock.release()
 

@@ -6,6 +6,8 @@ from numpy import around
 
 
 class kerasGreenLightDedection:
+    greenCounter = 5
+
     def __init__(self, image_height, image_width):
         self._cossLightModel = self.loadCrosslightModel(image_height, image_width)
 
@@ -49,10 +51,17 @@ class kerasGreenLightDedection:
         with self.graph.as_default():
             prediction = around(self._cossLightModel.predict(imgProcessed), 3)[0][0]
 
-        print("Crosslight Prediction: " + str(prediction))
-        if prediction < 0.1:
-            print("Green light found")
-            return True
+        if prediction > 0.2:
+            print("Red   " + str(prediction))
+            self.greenCounter = 5
+            return False
         else:
-            print("No green light found")
+            self.greenCounter = self.greenCounter - 1
+
+            print("Green " + str(prediction))
+
+            if self.greenCounter < 0:
+                print("Start")
+                return True
+
             return False

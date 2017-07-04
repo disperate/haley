@@ -45,14 +45,14 @@ class initActivity(object):
             self.initFork()  # ja, Tastendrücker initialisieren
             self.getDistOffset()  # Offsets der Sensoren ermitteln
 
-        while (self._pi.read(config.BUTTON)):
-            print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
-                self._i2c.getDistanceLeftBack(),
-                self._i2c.getDistanceLeftFront(),
-                self._i2c.getDistanceFront(),
-                self._i2c.getDistanceRightFront(),
-                self._i2c.getDistanceRightBack()))
-            sleep(0.11)
+        #while (self._pi.read(config.BUTTON)):
+            #print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
+            #    self._i2c.getDistanceLeftBack(),
+            #    self._i2c.getDistanceLeftFront(),
+            #    self._i2c.getDistanceFront(),
+            #    self._i2c.getDistanceRightFront(),
+            #    self._i2c.getDistanceRightBack()))
+            #sleep(0.11)
 
         fsm.setupComplete()  # Setup beenden
 
@@ -109,12 +109,12 @@ class initActivity(object):
                 result = self.getMeanDist(8)
                 if abs(result[distanceSensorAdapter.SENSOR_LEFT_FRONT] - result[
                     distanceSensorAdapter.SENSOR_RIGHT_FRONT]) < 4:
-                    print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
-                        self._i2c.getDistanceLeftBack(),
-                        self._i2c.getDistanceLeftFront(),
-                        self._i2c.getDistanceFront(),
-                        self._i2c.getDistanceRightFront(),
-                        self._i2c.getDistanceRightBack()))
+                    #print("LB: {:4d}, LF: {:4d}, F: {:4d}, RF: {:4d}, RB: {:4d}".format(
+                    #    self._i2c.getDistanceLeftBack(),
+                    #    self._i2c.getDistanceLeftFront(),
+                    #    self._i2c.getDistanceFront(),
+                    #    self._i2c.getDistanceRightFront(),
+                    #    self._i2c.getDistanceRightBack()))
                     moveButtonSlider = False
             sleep(0.01)
 

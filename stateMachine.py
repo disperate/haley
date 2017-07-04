@@ -72,14 +72,14 @@ class Haley(object):
         ##init all modules
         self.displayModul = display.display()
 
-        self.cameraModul = camera.camera()
-        self.cameraModul.start()
-
         self.motorModul = motor.motor()
         self.motorModul.start()
 
         self.i2c = i2cHandler.I2cHandler()
         self.i2c.start()
+
+        self.cameraModul = camera.camera(self.i2c)
+        self.cameraModul.start()
 
         i = init.initActivity(self, self.i2c)
 
@@ -128,7 +128,8 @@ class Haley(object):
         self.cameraModul.startRomanNumberDedection()
 
     def initButtonDrive(self):
-        buttonPresser = buttonPress.buttonPressActivity(self, self.motorModul, self.i2c)
+        self.cameraModul.stopRomanNumberDedection()
+        buttonPresser = buttonPress.buttonPressActivity(self, self.motorModul, self.i2c, self.cameraModul)
         buttonPresser.start()
 
     def hasTurned(self):

@@ -19,10 +19,9 @@ try:
         controller.setVelocityLeft(60.0)
         controller.setVelocityRight(60.0)
 
-        sleep(6)
+        sleep(5)
 
-        controller.setVelocityLeft(0.0)
-        controller.setVelocityRight(0.0)
+        controller.stop()
         camera.stopRomanNumberDedection()
 
         input("Press Enter to continue...")

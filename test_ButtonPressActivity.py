@@ -8,7 +8,6 @@ from modul import motor
 
 motorDriver = None
 i2c = None
-fork = None
 testPattern = 1
 
 try:
@@ -69,12 +68,12 @@ try:
     i2c.terminate()
 
 except KeyboardInterrupt:
-    fork.stopMovement()
+    fork.stop()
     motorDriver.terminate()
     i2c.terminate()
     print("Goodbye!")
 except:
-    fork.stopMovement()
+    fork.stop()
     motorDriver.terminate()
     i2c.terminate()
     print("Aaaaaargh!")

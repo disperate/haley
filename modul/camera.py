@@ -22,7 +22,6 @@ class camera(Thread):
         self._running = True
         self._dedectGreenLight = False
         self._dedectRomanNumber = False
-        self._romanNumber = None
         self.isGreen = False
 
         self._greenLightDedection = modul.kerasGreenLightDedection.kerasGreenLightDedection(image_height, image_width)
@@ -59,7 +58,38 @@ class camera(Thread):
         Start looking for the roman number by calling startRomanNumberDedection()
         Returns:     int (1-5)
         """
-        return self._romanNumber
+        print("returning roman number")
+
+        resultList = list(self._romanNumberDedection.resultList)
+        print(resultList)
+
+        # if self._romanNumberDedection.romanNumber is not None:
+        #    return self._romanNumberDedection.romanNumber
+
+        print("In Bounds 3-5")
+        for x in range(1, 6):
+            if self.liesInBounds(3, 5, resultList, x):
+                return x
+        print("In Bounds 2-5")
+        for x in range(1, 6):
+            if self.liesInBounds(2, 5, resultList, x):
+                return x
+        print("In Bounds 1-6")
+        for x in range(1, 6):
+            if self.liesInBounds(1, 6, resultList, x):
+                return x
+        print("In Bounds 1-30")
+        for x in range(1, 6):
+            if self.liesInBounds(1, 30, resultList, x):
+                return x
+
+        print("Random die 2")
+        return 2
+
+    def liesInBounds(self, under, upper, listOfDedections, index):
+        count = listOfDedections.count(index)
+        if under <= count and count <= upper:
+            return True
 
     def terminate(self):
         self._running = False
