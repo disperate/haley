@@ -29,6 +29,8 @@ class buttonPressActivity(Thread):
 
             while not self._camera.imageQueue.empty():
                 print("waiting for queue")
+                self._motor.setVelocityLeft(0)
+                self._motor.setVelocityRight(0)
                 sleep(0.1)
 
             print("Work in queue done")

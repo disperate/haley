@@ -53,7 +53,7 @@ class kerasGreenLightDedection:
 
         if prediction > 0.2:
             print("Red   " + str(prediction))
-            self.greenCounter = 5
+            self.greenCounter = 10
             return False
         else:
             self.greenCounter = self.greenCounter - 1

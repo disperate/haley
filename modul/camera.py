@@ -11,6 +11,7 @@ import modul.romanNumberDedection
 
 
 class camera(Thread):
+
     imageQueue = Queue()
 
     def __init__(self, i2c):

@@ -84,7 +84,7 @@ class romanNumberDedection:
         result = 0
         self.totalPrediction += 1
 
-        threshold = 0.95
+        threshold = 0.96
         #print(prediction)
 
         if prediction[0] >= threshold:
